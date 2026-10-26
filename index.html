@@ -793,7 +793,7 @@ document.addEventListener('click', ev => {
     const g = groupsOf(locItems())[+b.dataset.g];
     g.items.forEach(i => { if (i.input_type === 'bool' && !isDone(i, S.draft[i.item_id])) draftOf(i.item_id).v = true; });
     S.dirty = true; renderEntry();
-  }nextField
+  }
   else if (act === 'field') setActive(S.active === b.dataset.id ? null : b.dataset.id);
   else if (act === 'key') {
     const d = draftOf(S.active);
