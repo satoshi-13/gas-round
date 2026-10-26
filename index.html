@@ -334,6 +334,7 @@ function call(action, payload = {}) {
  * 送信箱（楽観的UI）：操作は端末に保存して即反映、裏でまとめて送信
  * ======================================================= */
 const OB = { ops: store.get('outbox', []), busy: false, timer: null };
+const SENT = [];
 OB.ops.forEach(o => delete o.inflight);
 function saveOutbox() {
   const ok = store.set('outbox', OB.ops.map(({ inflight, ...o }) => o));
@@ -363,6 +364,8 @@ async function drain() {
   try {
     const res = await call('sync', { ops: batch.map(({ inflight, preview, ...o }) => o) });
     OB.ops = OB.ops.filter(o => !batch.includes(o));
+    batch.filter(o => o.type === 'photo').forEach(o => SENT.push(o));   // 送信済みの写真はこの端末ではそのまま表示し続ける
+    if (batch.some(o => o.type === 'photo') && (S.view === 'entry' || S.view === 'home')) render();   // 「未送信」の表示を消す
     saveOutbox();
     const failed = res.results.filter(r => !r.ok);
     if (failed.length) toast('保存できなかった記録があります：' + failed[0].error);
@@ -499,10 +502,14 @@ function locRow(loc) {
 /* ---- 写真 ---- */
 function photosFor(loc) {
   const server = (S.data && S.data.photos || []).filter(p => p.location === loc)
-    .map(p => ({ key: p.file_id, file_id: p.file_id, name: p.item_name, user: p.user, time: p.time }));
-  const pending = OB.ops.filter(o => o.type === 'photo' && o.date === S.date && o.location === loc)
-    .map(o => ({ key: o.id, src: 'data:image/jpeg;base64,' + o.data, name: o.item_name, user: o.user, pending: true }));
-  return server.concat(pending);
+    .map(p => { const mine = SENT.find(o => o.id === p.photo_id);
+      return { key: p.file_id, file_id: mine ? '' : p.file_id, src: mine ? 'data:image/jpeg;base64,' + mine.data : '', name: p.item_name, user: p.user, time: p.time }; });
+  const ids = new Set(((S.data && S.data.photos) || []).map(p => p.photo_id));
+  const local = SENT.filter(o => !ids.has(o.id)).map(o => Object.assign({}, o, { sent: true }))
+    .concat(OB.ops.filter(o => o.type === 'photo'))
+    .filter(o => o.date === S.date && o.location === loc)
+    .map(o => ({ key: o.id, src: 'data:image/jpeg;base64,' + o.data, name: o.item_name, user: o.user, pending: !o.sent }));
+  return server.concat(local);
 }
 const THUMBS = {};
 function loadThumb(id) {
@@ -786,7 +793,7 @@ document.addEventListener('click', ev => {
     const g = groupsOf(locItems())[+b.dataset.g];
     g.items.forEach(i => { if (i.input_type === 'bool' && !isDone(i, S.draft[i.item_id])) draftOf(i.item_id).v = true; });
     S.dirty = true; renderEntry();
-  }
+  }nextField
   else if (act === 'field') setActive(S.active === b.dataset.id ? null : b.dataset.id);
   else if (act === 'key') {
     const d = draftOf(S.active);
