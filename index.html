@@ -114,6 +114,13 @@ h2{font-size:14px;margin:16px 2px 6px;color:var(--muted);font-weight:600}
 .grp-h{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--accent-soft)}
 .grp-h b{flex:1;font-size:15px}
 .grp-h button{font-size:13px;font-weight:700;color:var(--accent);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:4px 11px}
+.bankrow{display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--accent-soft);border-top:1px solid var(--line);font-size:13px;color:var(--muted);flex-wrap:wrap}
+.bankrow b{color:var(--ink);font-size:13px}
+.usechip{font-size:11px;font-weight:700;padding:1px 8px;border-radius:99px;margin-left:6px;vertical-align:2px;background:var(--accent);color:var(--on-accent)}
+.usechip.stby{background:var(--line);color:var(--muted)}
+.bankrow .stp{display:flex;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-left:auto}
+.bankrow .stp button{width:40px;height:36px;font-size:20px;font-weight:700;color:var(--accent)}
+.bankrow .stp span{min-width:46px;text-align:center;font-size:16px;font-weight:700;color:var(--ink)}
 .it{display:flex;align-items:center;gap:8px;padding:8px 10px 8px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
 .it:first-of-type{border-top:0}
 .it .nm{flex:1 1 140px;min-width:0;font-size:15px;font-weight:600;line-height:1.3}
@@ -129,6 +136,9 @@ h2{font-size:14px;margin:16px 2px 6px;color:var(--muted);font-weight:600}
 .chips button{min-width:46px;height:44px;padding:0 9px;border-radius:10px;border:2px solid var(--line);font-size:15px;font-weight:700;background:var(--bg)}
 .chips button.sel{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
 .chips button.prev{border-style:dashed;border-color:var(--faint)}
+.chips.lv button{min-width:40px;padding:0 4px}
+.it .nm .saved{color:var(--ok);font-weight:600}
+.savebar button.done{background:var(--surface);color:var(--accent);border:2px solid var(--accent)}
 .vbox{min-width:104px;height:44px;border-radius:10px;border:2px solid var(--line);background:var(--surface);padding:0 10px;text-align:right;font-size:20px;font-weight:700}
 .vbox small{font-size:12px;font-weight:500;margin-left:3px;color:var(--muted)}
 .vbox.empty{color:var(--faint);font-weight:500}
@@ -288,17 +298,20 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 /* ---------- 項目の扱い ---------- */
 const label = i => i.item_name + (i.sub ? ' ' + i.sub : '');
 const hasVal = v => v !== undefined && v !== null && v !== '';
+/* 小数点第3位を四捨五入して第2位まで（0.845 → 0.85。2進数の誤差で 0.84 にならないよう文字で桁をずらす） */
+const round2 = x => Math.round(Number(Number(x) + 'e2')) / 100;
+const LEVELS = ['5', '4', '3', '2', '1', '0'];   // 液化酸素タンクのレベル（5＝満タン）
 function isDone(i, d) {
   if (!d) return false;
   if (i.input_type === 'bool') return d.v === true || d.v === false;
-  if (i.input_type === 'num') return hasVal(d.v);
+  if (i.input_type === 'num' || i.input_type === 'level') return hasVal(d.v);
   if (i.input_type === 'choice') return !!d.c;
   return !!d.c || hasVal(d.v);
 }
 function levelOf(i, d) {
   if (!isDone(i, d)) return '';
   if (i.input_type === 'bool') return d.v ? 'ok' : 'alert';
-  if ((i.input_type === 'num' || i.input_type === 'pair') && hasVal(d.v)) {
+  if ((i.input_type === 'num' || i.input_type === 'pair' || i.input_type === 'level') && hasVal(d.v)) {
     const v = Number(d.v);
     if ((i.low !== null && v < i.low) || (i.high !== null && v > i.high)) return 'alert';
   }
@@ -307,9 +320,10 @@ function levelOf(i, d) {
 function fmtVal(i, d) {
   if (!d) return '';
   if (i.input_type === 'bool') return d.v ? '✓' : '×';
-  if (i.input_type === 'num') return hasVal(d.v) ? String(d.v) : '';
+  if (i.input_type === 'num') return hasVal(d.v) ? String(round2(d.v)) : '';
+  if (i.input_type === 'level') return hasVal(d.v) ? String(d.v) : '';
   if (i.input_type === 'choice') return d.c || '';
-  return [d.c, hasVal(d.v) ? d.v : ''].filter(String).join(' ');
+  return [d.c, hasVal(d.v) ? round2(d.v) : ''].filter(String).join(' ');
 }
 
 /* ---------- 通信 ---------- */
@@ -369,6 +383,7 @@ async function drain() {
     batch.filter(o => o.type === 'photo').forEach(o => SENT.push(o));   // 送信済みの写真はこの端末ではそのまま表示し続ける
     if (batch.some(o => o.type === 'photo') && (S.view === 'entry' || S.view === 'home')) render();   // 「未送信」の表示を消す
     saveOutbox();
+    if (batch.some(o => o.type === 'bank')) load(true).then(() => { if (S.view === 'entry') mergeEntry(); });
     const failed = res.results.filter(r => !r.ok);
     if (failed.length) toast('保存できなかった記録があります：' + failed[0].error);
     OB.busy = false;
@@ -466,7 +481,7 @@ function renderHome() {
   const daily = items.filter(i => i.daily);
   const done = daily.filter(i => i.today).length;
   const isToday = S.date === todayStr();
-  const oxy = S.data ? S.data.supply.filter(s => s.gas === '酸素' && s.current !== null) : [];
+  const oxy = S.data ? S.data.supply.filter(s => s.gas === '酸素' && s.current !== null && !s.reserve) : [];
   app.innerHTML = `
     <div class="datebar">
       <button data-act="prevDay" aria-label="前の日">‹</button>
@@ -480,7 +495,7 @@ function renderHome() {
     ${oxy.length ? `<div class="oxy">
       <div class="oxy-h"><b>酸素　あと何日使えるか</b><button data-act="trend">推移 ›</button></div>
       ${oxy.map(s => `<div class="orow ${s.level}">
-        <span class="n">${esc(s.short)}<small class="num">${esc(s.side ? s.side + ' ' : '')}${s.current}${esc(s.unit)}${s.avg !== null ? `・1日 ${s.avg}${esc(s.unit)}` : ''}</small></span>
+        <span class="n">${esc(s.short)}<small class="num">${esc(s.side ? s.side + ' ' : '')}${s.current}${s.full ? ' / ' + s.full : ''}${esc(s.unit)}${s.avg !== null ? `・1日 ${s.avg}${esc(s.unit)}` : ''}</small>${s.detail ? `<small class="num">${esc(s.detail)}</small>` : ''}</span>
         <span class="days num">${dayLeftText(s)}<small>日</small></span>
         <span class="when num">${s.predicted ? md(s.predicted) + ' 頃' : 'データ不足'}</span></div>`).join('')}
     </div>` : ''}
@@ -559,27 +574,108 @@ function groupsOf(items) {
   return out;
 }
 function openEntry(loc) {
-  S.loc = loc; S.note = ''; S.active = null; S.dirty = false; S.draft = {};
+  S.loc = loc; S.note = ''; S.active = null; S.dirty = false; S.draft = {}; S.saved = {};
   locItems().forEach(i => {
-    if (i.today) { S.draft[i.item_id] = { c: i.today.c || '', v: i.input_type === 'bool' ? i.today.v : (hasVal(i.today.v) ? String(i.today.v) : '') }; if (i.today.note) S.note = i.today.note; }
+    if (i.today) {
+      S.draft[i.item_id] = { c: i.today.c || '', v: i.input_type === 'bool' ? i.today.v : (hasVal(i.today.v) ? String(i.today.v) : '') };
+      if (i.today.note) S.note = i.today.note;
+      const r = recOf(i); if (r) S.saved[i.item_id] = serial(r);
+    } else {
+      const dd = defaultDraft(i);   // 点検項目は最初から ✓（異常のときだけ ✗）。使用側は前回と同じ側
+      if (dd) S.draft[i.item_id] = dd;
+    }
   });
+  S.noteSaved = S.note;
   S.view = 'entry'; render(); window.scrollTo(0, 0);
+}
+
+/* ボンベ・タンクの「使用側」の欄（名前が「使用側」で始まる選択の欄） */
+const isUseItem = i => i.input_type === 'choice' && i.item_name.indexOf('使用側') === 0;
+/* 残量の欄が左右どちらか：ボンベ「No1 左」「左」／タンク「左1」 */
+function sideOf(i) {
+  if (i.input_type === 'level') return i.sub.charAt(0);
+  if (i.input_type === 'num') { const m = i.sub.match(/^(.*?)\s*(左|右)$/); return m ? m[2] : ''; }
+  return '';
+}
+function sysOf(i) { return i.input_type === 'num' ? (i.sub.match(/^(.*?)\s*(左|右)$/) || ['', ''])[1].trim() : ''; }
+/* その欄の組の、いま選ばれている使用側 */
+function useSideFor(i) {
+  const side = sideOf(i); if (!side) return null;
+  const u = locItems().find(x => isUseItem(x) && x.group === i.group && x.sub === sysOf(i));
+  if (!u) return null;
+  const d = S.draft[u.item_id];
+  return { side, use: d && d.c ? d.c : '' };
+}
+/* 使用側はふだん変わらないので、前回の使用側を最初から選んでおく（「まとめて保存」で登録） */
+function defaultDraft(i) {
+  if (i.input_type === 'bool') return { c: '', v: true };
+  if (isUseItem(i) && i.previous && i.previous.c && i.previous.c !== '交換') return { c: i.previous.c, v: undefined };
+  return null;
+}
+
+/* 本数の変更などで項目が増減したとき：入力中の内容は残し、新しい欄だけ用意する */
+function mergeEntry() {
+  locItems().forEach(i => {
+    if (S.draft[i.item_id]) return;
+    if (i.today) {
+      S.draft[i.item_id] = { c: i.today.c || '', v: i.input_type === 'bool' ? i.today.v : (hasVal(i.today.v) ? String(i.today.v) : '') };
+      const r = recOf(i); if (r) S.saved[i.item_id] = serial(r);
+    } else { const dd = defaultDraft(i); if (dd) S.draft[i.item_id] = dd; }
+  });
+  if (S.active && !locItems().some(i => i.item_id === S.active)) S.active = null;
+  renderEntry();
+}
+
+/* ---- 自動登録 ----
+ *  数値：テンキーで「次へ」「完了」や別の欄に移ったとき／✗・選択肢・タンクのレベル：押したとき に1項目ずつ登録
+ *  最初から ✓ の項目は、画面下の「まとめて保存」で登録する */
+function recOf(i) {
+  const d = S.draft[i.item_id];
+  if (!isDone(i, d)) return null;
+  if (i.input_type === 'bool') return { item_id: i.item_id, v: d.v };
+  if (i.input_type === 'choice') return { item_id: i.item_id, c: d.c };
+  if (i.input_type === 'num') return { item_id: i.item_id, v: round2(d.v) };
+  if (i.input_type === 'level') return { item_id: i.item_id, v: Number(d.v) };
+  return { item_id: i.item_id, c: d.c || '', v: hasVal(d.v) ? round2(d.v) : '' };
+}
+const serial = r => JSON.stringify([r.c || '', r.v]);
+function unsavedItems() {
+  return locItems().filter(i => { const r = recOf(i); return r && S.saved[i.item_id] !== serial(r); });
+}
+function autosave(ids) {
+  const recs = ids.map(findItem).filter(Boolean).map(recOf).filter(r => r && S.saved[r.item_id] !== serial(r));
+  if (!recs.length) return;
+  enqueue({ type: 'save', date: S.date, user: S.user, location: S.loc, note: S.note, records: recs });
+  recs.forEach(r => { S.saved[r.item_id] = serial(r); });
+}
+/* 数値の欄を確定：末尾の「.」を外し、小数点第2位までにしてから登録 */
+function commitNum(id) {
+  const d = S.draft[id];
+  if (d && hasVal(d.v)) {
+    let v = String(d.v);
+    if (v.endsWith('.')) v = v.slice(0, -1);
+    d.v = v === '' ? '' : String(round2(v));
+  }
+  autosave([id]);
 }
 
 function renderEntry() {
   const its = locItems();
   const daily = its.filter(i => i.daily);
   const n = daily.filter(i => isDone(i, S.draft[i.item_id])).length;
-  const any = its.some(i => isDone(i, S.draft[i.item_id]));
+  const unsaved = unsavedItems().length + (S.note !== S.noteSaved && its.some(i => isDone(i, S.draft[i.item_id])) ? 1 : 0);
   const pics = photosFor(S.loc);
   pics.forEach(p => { if (p.file_id && !THUMBS[p.file_id]) loadThumb(p.file_id); });
   app.className = S.active ? 'with-sheet' : 'with-bar';
   app.innerHTML = `
     <div class="entry-head"><button class="back" data-act="leave">‹ 一覧</button><h2>${esc(S.loc)}</h2></div>
-    <p class="sub-head">${fmtJP(S.date)}　${esc(S.user)}　<span class="ghost">点線・薄い文字は前回の記録</span></p>
+    <p class="sub-head">${fmtJP(S.date)}　${esc(S.user)}　<span class="ghost">数値・✗・選択は入力するとすぐ登録。✓は最初から付いています</span></p>
     ${groupsOf(its).map((g, gi) => {
       const unsetBool = g.items.filter(i => i.input_type === 'bool' && !isDone(i, S.draft[i.item_id])).length;
+      const banks = ((S.data && S.data.banks) || []).map((bk, k) => Object.assign({ k }, bk)).filter(bk => bk.location === S.loc && bk.group === g.name);
       return `<section class="grp"><div class="grp-h"><b>${esc(g.name)}</b>${unsetBool ? `<button data-act="grpok" data-g="${gi}">未入力を ✓（${unsetBool}）</button>` : ''}</div>
+        ${banks.map(bk => `<div class="bankrow"><span>${bk.type === 'タンク' ? '液化酸素タンク' : 'ボンベ'}${bk.sys ? ' ' + esc(bk.sys) : ''}の本数　<b>左右 各</b></span>
+          <div class="stp num"><button data-act="bankStep" data-k="${bk.k}" data-d="-1" aria-label="1本減らす" ${bk.count <= 1 ? 'disabled' : ''}>−</button><span>${bk.count}本</span><button data-act="bankStep" data-k="${bk.k}" data-d="1" aria-label="1本増やす" ${bk.count >= 20 ? 'disabled' : ''}>＋</button></div></div>`).join('')}
         ${g.items.map(itemRow).join('')}</section>`;
     }).join('')}
     <section class="photos">
@@ -590,14 +686,20 @@ function renderEntry() {
         : '<p class="muted" style="font-size:13px;margin:0">見た目に異常があれば撮影してください。✗ を付けた項目には撮影ボタンが出ます。</p>'}
     </section>
     <div class="notebox"><textarea id="f-note" rows="2" placeholder="備考（任意）例：窒素ボンベ交換、吸引装置フィルター交換">${esc(S.note)}</textarea></div>
-    ${S.active ? keypadSheet() : `<div class="savebar"><button data-act="save" ${any ? '' : 'disabled'}>保存する（${n}/${daily.length}）</button></div>`}`;
+    ${S.active ? keypadSheet() : `<div class="savebar">${unsaved
+      ? `<button data-act="save">✓の項目もまとめて保存（未保存 ${unsaved}・入力 ${n}/${daily.length}）</button>`
+      : `<button class="done" data-act="leave">登録済み　一覧へ戻る（${n}/${daily.length}）</button>`}</div>`}`;
 }
 
 function itemRow(i) {
   const d = S.draft[i.item_id] || {};
   const p = i.previous;
   const lvl = levelOf(i, d);
-  const prevTxt = p ? `前回 ${esc(fmtVal(i, p))}${i.input_type === 'num' || (i.input_type === 'pair' && hasVal(p.v)) ? esc(i.unit) : ''}（${md(p.date)}）` : '';
+  const prevTxt = p ? `前回 ${esc(fmtVal(i, p))}${i.input_type === 'num' || i.input_type === 'level' || (i.input_type === 'pair' && hasVal(p.v)) ? esc(i.unit) : ''}（${md(p.date)}）` : '';
+  const r = recOf(i);
+  const savedMark = r && S.saved[i.item_id] === serial(r) ? '<span class="saved">登録済 </span>' : '';
+  const us = useSideFor(i);
+  const useChip = us && us.use ? (us.use === us.side ? '<span class="usechip">使用中</span>' : '<span class="usechip stby">予備</span>') : '';
   let ctl = '';
   if (i.input_type === 'bool') {
     ctl = `<div class="seg">
@@ -608,13 +710,16 @@ function itemRow(i) {
   if (i.input_type === 'choice' || i.input_type === 'pair') {
     ctl += `<div class="chips">${i.options.map(o => `<button class="${d.c === o ? 'sel' : (!d.c && p && p.c === o ? 'prev' : '')}" data-act="choice" data-id="${i.item_id}" data-o="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
   }
+  if (i.input_type === 'level') {
+    ctl = `<div class="chips lv">${LEVELS.map(o => `<button class="${String(d.v) === o ? 'sel' : (!hasVal(d.v) && p && String(p.v) === o ? 'prev' : '')}" data-act="lvl" data-id="${i.item_id}" data-o="${o}" aria-label="${o === '5' ? '5（満タン）' : o}">${o}</button>`).join('')}</div>`;
+  }
   if (i.input_type === 'num' || i.input_type === 'pair') {
     const has = hasVal(d.v);
-    const shown = has ? d.v : (p && hasVal(p.v) ? p.v : '—');
+    const shown = has ? d.v : (p && hasVal(p.v) ? round2(p.v) : '—');
     ctl += `<button class="vbox num ${has ? '' : 'empty'} ${S.active === i.item_id ? 'act' : ''} ${lvl === 'alert' ? 'alert' : ''}" data-act="field" data-id="${i.item_id}" id="f-${i.item_id}">${esc(shown)}<small>${esc(i.unit)}</small></button>`;
   }
   return `<div class="it ${lvl === 'alert' ? 'alert' : ''}" id="r-${i.item_id}">
-    <div class="nm">${esc(label(i))}${prevTxt ? `<small>${prevTxt}</small>` : ''}</div><div class="ctl">${ctl}</div></div>`;
+    <div class="nm">${esc(label(i))}${useChip}${prevTxt || savedMark ? `<small>${savedMark}${prevTxt}</small>` : ''}</div><div class="ctl">${ctl}</div></div>`;
 }
 
 const findItem = id => S.data.items.find(i => i.item_id === id);
@@ -640,6 +745,7 @@ function keypadSheet() {
   </div></div>`;
 }
 function setActive(id) {
+  if (S.active && S.active !== id) commitNum(S.active);
   S.sheetAnim = !S.active && !!id;
   S.active = id; renderEntry();
   if (id) { const el = document.getElementById('r-' + id); if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
@@ -661,9 +767,10 @@ function renderTrend() {
         <div>1日の使用量<b>${s.avg === null ? '—' : s.avg}</b></div>
         <div class="${s.level}">残り日数<b>${dayLeftText(s)}${s.days_left !== null ? '日' : ''}</b></div>
       </div>
+      ${s.detail ? `<p class="muted num" style="font-size:12.5px;margin:0 0 4px">${s.tank ? '各タンクの目盛' : '左右の残量'}：${esc(s.detail)}${s.bank && !s.capacity_set ? '　※容量が未登録のため「本分」（満タン1本＝1）で表示' : ''}</p>` : ''}
       <p class="muted" style="font-size:12.5px;margin:0 0 6px">${s.predicted ? `下限 ${s.limit}${esc(s.unit)} に届く見込み：${fmtJP(s.predicted)}` : '2日分以上の記録がたまると予測を表示します'}${s.usage.some(u => u.event) ? '　黄色の点＝交換・補充' : ''}</p>
       ${lineChart(s)}</div>`).join('') || '<p class="muted">対象の設備がありません</p>'}
-    <p class="muted" style="font-size:12px">残り日数＝（現在値 − 下限）÷ 直近14日の1日平均使用量。交換・補充した日は平均から除いています。下限はスプレッドシートの「マスタ」の limit で変更できます。</p>`;
+    <p class="muted" style="font-size:12px">残り日数＝（現在値 − 下限）÷ 直近14日の1日平均使用量。交換・補充した日は平均から除いています。下限はスプレッドシートの「マスタ」の limit で変更できます。ボンベ・液化酸素タンクは左右（予備側を含む）すべての残量の合計で計算します。本数・容量・下限は「ボンベ・タンク設定」シートで変更できます（本数は点検画面でも変更できます）。</p>`;
 }
 
 function lineChart(s) {
@@ -783,11 +890,37 @@ document.addEventListener('click', ev => {
   }
 
   else if (act === 'entry') openEntry(b.dataset.loc);
-  else if (act === 'leave') { if (S.dirty && !confirm('保存せずに一覧へ戻りますか？')) return; S.view = 'home'; S.active = null; render(); }
-  else if (act === 'bool') { draftOf(b.dataset.id).v = b.dataset.v === '1'; S.dirty = true; S.active = null; renderEntry(); }
+  else if (act === 'leave') {
+    if (S.active) { commitNum(S.active); S.active = null; }
+    const u = unsavedItems().length;
+    if (u && !confirm(`まだ保存していない項目が ${u} 件あります（最初から ✓ の項目など）。保存せずに一覧へ戻りますか？`)) { renderEntry(); return; }
+    S.view = 'home'; render(); window.scrollTo(0, 0);
+  }
+  else if (act === 'bool') {
+    if (S.active) { commitNum(S.active); S.active = null; }
+    draftOf(b.dataset.id).v = b.dataset.v === '1'; S.dirty = true;
+    if (b.dataset.v === '0' || S.saved[b.dataset.id] !== undefined) autosave([b.dataset.id]);   // ✗ は押した時点で登録（✓ に戻したときも登録し直す）
+    renderEntry();
+  }
+  else if (act === 'bankStep') {
+    const bk = S.data.banks[+b.dataset.k];
+    const n = Math.max(1, Math.min(20, bk.count + Number(b.dataset.d)));
+    if (n === bk.count) return;
+    if (bk.type === 'タンク' && n < bk.count && !confirm(`${bk.location} の液化酸素タンクを左右各${n}本にします。減らしたタンクの入力欄は表示されなくなります（記録は残ります）。よろしいですか？`)) return;
+    bk.count = n;
+    enqueue({ type: 'bank', date: S.date, user: S.user, location: bk.location, group: bk.group, sys: bk.sys, count: n });
+    toast(`本数を左右各${n}本にしました${bk.type === 'タンク' ? '。入力欄を更新しています…' : ''}`);
+    renderEntry();
+  }
+  else if (act === 'lvl') {
+    if (S.active) { commitNum(S.active); S.active = null; }
+    draftOf(b.dataset.id).v = b.dataset.o; S.dirty = true;
+    autosave([b.dataset.id]); renderEntry();
+  }
   else if (act === 'choice') {
     const i = findItem(b.dataset.id), d = draftOf(i.item_id);
     d.c = d.c === b.dataset.o ? '' : b.dataset.o; S.dirty = true;
+    autosave([i.item_id]);
     // 残量など数値もある項目は、続けてテンキーを開く
     if (i.input_type === 'pair' && d.c && !hasVal(d.v)) setActive(i.item_id); else renderEntry();
   }
@@ -803,6 +936,7 @@ document.addEventListener('click', ev => {
     const k = b.dataset.k;
     if (k === '⌫') v = v.slice(0, -1);
     else if (k === '.') { if (!v.includes('.')) v = (v || '0') + '.'; }
+    else if ((v.split('.')[1] || '').length >= 2) { /* 小数は第2位まで */ }
     else if (v.length < 8) v = (v === '0' ? '' : v) + k;
     d.v = v; S.dirty = true; renderEntry();
   }
@@ -821,15 +955,15 @@ document.addEventListener('click', ev => {
   }
   else if (act === 'view') viewPhoto(b.dataset.key);
   else if (act === 'save') {
+    if (S.active) { commitNum(S.active); S.active = null; }
     const note = document.getElementById('f-note').value.trim();
-    const records = locItems().filter(i => isDone(i, S.draft[i.item_id])).map(i => {
-      const d = S.draft[i.item_id];
-      if (i.input_type === 'bool') return { item_id: i.item_id, v: d.v };
-      if (i.input_type === 'choice') return { item_id: i.item_id, c: d.c };
-      if (i.input_type === 'num') return { item_id: i.item_id, v: Number(d.v) };
-      return { item_id: i.item_id, c: d.c || '', v: hasVal(d.v) ? Number(d.v) : '' };
-    });
-    enqueue({ type: 'save', date: S.date, user: S.user, location: S.loc, note, records });
+    S.note = note;
+    // 備考を書き換えたときは、入力済みの全項目に備考を付け直す
+    const targets = note !== S.noteSaved ? locItems().filter(i => isDone(i, S.draft[i.item_id])) : unsavedItems();
+    const records = targets.map(recOf).filter(Boolean);
+    if (records.length) enqueue({ type: 'save', date: S.date, user: S.user, location: S.loc, note, records });
+    records.forEach(r => { S.saved[r.item_id] = serial(r); });
+    S.noteSaved = note;
     const loc = S.loc;
     S.view = 'home'; S.active = null; S.dirty = false; render(); window.scrollTo(0, 0);
     toast(`${loc} を保存しました`);
