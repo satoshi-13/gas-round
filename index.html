@@ -3,36 +3,34 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="医療ガス点検">
-<meta name="theme-color" content="#24456b">
-<title>医療ガス点検</title>
-<script>try{var t=JSON.parse(localStorage.getItem('mg_theme')||'"auto"');if(t!=='auto')document.documentElement.dataset.theme=t;}catch(e){}</script>
+<meta name="apple-mobile-web-app-title" content="ラウンド点検表">
+<meta name="theme-color" content="#0e5c66">
+<title>ラウンド点検表</title>
+<script>try{var t=JSON.parse(localStorage.getItem('rnd_theme')||'"auto"');if(t!=='auto')document.documentElement.dataset.theme=t;}catch(e){}</script>
 <style>
 :root{
-  --bg:#eef1f5; --surface:#ffffff; --ink:#132033; --muted:#5b6878; --faint:#a7b2bf; --line:#d5dce5;
-  --accent:#24456b; --on-accent:#ffffff; --accent-soft:#dde7f3;
+  --bg:#eef2f5; --surface:#ffffff; --ink:#13212e; --muted:#5d6b78; --faint:#a9b5bf; --line:#d6dee5;
+  --accent:#0e5c66; --on-accent:#ffffff; --accent-soft:#dcefF1;
   --ok:#2e7d4f; --ok-bg:#e1f3e8; --warn:#7a5000; --warn-bg:#fff1b8; --warn-line:#e0b400;
-  --alert:#c0303a; --alert-bg:#fbe3e4; --key:#e2e7ee; --empty:#eef1f4; --toast-btn:#9cc6f2;
-  --head:#24456b; --on-head:#ffffff;
+  --alert:#c0303a; --alert-bg:#fbe3e4; --key:#e3e9ee; --empty:#eef1f4; --toast-btn:#7fe0e8; --head:#0e5c66; --on-head:#ffffff;
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#0e1621; --surface:#172231; --ink:#e5ecf4; --muted:#93a2b3; --faint:#566779; --line:#283a4e;
-    --accent:#7fb2e8; --on-accent:#0b1a2c; --accent-soft:#1c3149;
-    --ok:#6fd69a; --ok-bg:#163223; --warn:#ffd45c; --warn-bg:#3a3110; --warn-line:#c9a200;
-    --alert:#ff7b84; --alert-bg:#3d1a1d; --key:#223246; --empty:#131d29; --toast-btn:#24456b;
-    --head:#162b44; --on-head:#e5ecf4; color-scheme:dark;
+  --bg:#0f1820; --surface:#18242f; --ink:#e6edf2; --muted:#93a3b1; --faint:#56687a; --line:#2a3a48;
+  --accent:#4cc3cf; --on-accent:#06252a; --accent-soft:#163a40;
+  --ok:#6fd69a; --ok-bg:#163223; --warn:#ffd45c; --warn-bg:#3a3110; --warn-line:#c9a200;
+  --alert:#ff7b84; --alert-bg:#3d1a1d; --key:#223241; --empty:#141f29; --toast-btn:#0e5c66; --head:#123540; --on-head:#e6f6f8;
+  color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#0e1621; --surface:#172231; --ink:#e5ecf4; --muted:#93a2b3; --faint:#566779; --line:#283a4e;
-  --accent:#7fb2e8; --on-accent:#0b1a2c; --accent-soft:#1c3149;
+  --bg:#0f1820; --surface:#18242f; --ink:#e6edf2; --muted:#93a3b1; --faint:#56687a; --line:#2a3a48;
+  --accent:#4cc3cf; --on-accent:#06252a; --accent-soft:#163a40;
   --ok:#6fd69a; --ok-bg:#163223; --warn:#ffd45c; --warn-bg:#3a3110; --warn-line:#c9a200;
-  --alert:#ff7b84; --alert-bg:#3d1a1d; --key:#223246; --empty:#131d29; --toast-btn:#24456b;
-  --head:#162b44; --on-head:#e5ecf4; color-scheme:dark;
+  --alert:#ff7b84; --alert-bg:#3d1a1d; --key:#223241; --empty:#141f29; --toast-btn:#0e5c66; --head:#123540; --on-head:#e6f6f8;
+  color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--ink);
@@ -46,22 +44,23 @@ button:disabled{opacity:.4;cursor:default}
 
 /* ヘッダー */
 .top{position:sticky;top:0;z-index:5;background:var(--head);color:var(--on-head);
-  padding:calc(env(safe-area-inset-top,0px) + 9px) 12px 9px 14px;display:flex;align-items:center;gap:6px}
-.top h1{font-size:17px;margin:0;font-weight:700;flex:1;white-space:nowrap}
-#sync{font-size:12px;opacity:.9;white-space:nowrap}
-.top .icon{color:var(--on-head);width:36px;height:36px;border-radius:50%;display:grid;place-items:center}
-.top .icon svg{width:22px;height:22px;display:block}
+  padding:calc(env(safe-area-inset-top,0px) + 9px) 14px 9px;display:flex;align-items:center;gap:10px}
+.top h1{font-size:17px;margin:0;font-weight:700;flex:1}
+#sync{font-size:12px;opacity:.9}
+.top .icon{color:var(--on-head);width:36px;height:36px;border-radius:50%;font-size:18px;display:grid;place-items:center}
 .top .icon:active{background:rgba(255,255,255,.18)}
-.top .who{color:var(--on-head);font-size:14px;font-weight:700;padding:5px 11px;border-radius:99px;border:1.5px solid currentColor;white-space:nowrap}
-main{max-width:600px;margin:0 auto;padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 40px)}
-main.with-bar{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 100px)}
-main.with-sheet{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 380px)}
+.top .icon svg{width:22px;height:22px;display:block}
+.top .who{color:var(--on-head);font-size:14px;font-weight:700;padding:5px 12px;border-radius:99px;border:1.5px solid currentColor}
+main{max-width:560px;margin:0 auto;padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 40px)}
+main.with-bar{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 96px)}
+main.with-sheet{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 360px)}
 
-/* 点検者 */
+/* 点検者選択 */
 .who-title{font-size:22px;font-weight:700;margin:18px 0 2px}
 .names{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:16px}
 .names button{background:var(--surface);border:2px solid var(--line);border-radius:14px;height:72px;font-size:20px;font-weight:700}
 .names button.last{border-color:var(--accent)}
+.names button:active{background:var(--accent);color:var(--on-accent)}
 
 /* 日付・進捗 */
 .datebar{display:flex;align-items:center;gap:8px;margin:2px 0 8px}
@@ -71,169 +70,166 @@ main.with-sheet{padding-bottom:calc(env(safe-area-inset-bottom,0px) + 380px)}
 .progress{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-bottom:4px}
 .progress i{display:block;height:100%;background:var(--accent);transition:width .3s}
 .ptext{font-size:12px;color:var(--muted);text-align:right;margin-bottom:8px}
-.banner{padding:9px 12px;border-radius:10px;margin-bottom:10px;font-size:14px}
-.banner.warn{background:var(--warn-bg);color:var(--warn)} .banner.err{background:var(--alert-bg);color:var(--alert)}
+.banner{padding:9px 12px;border-radius:10px;margin-bottom:10px;font-size:14px;display:flex;gap:10px;align-items:center}
+.banner.warn{background:var(--warn-bg);color:var(--warn)}
+.banner.err{background:var(--alert-bg);color:var(--alert)}
 h2{font-size:14px;margin:16px 2px 6px;color:var(--muted);font-weight:600}
 
-/* 酸素カード */
-.oxy{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px 4px;margin-bottom:6px}
-.oxy-h{display:flex;align-items:baseline;gap:8px;margin-bottom:4px}
-.oxy-h b{flex:1;font-size:15px}
-.oxy-h button{color:var(--accent);font-weight:700;font-size:14px}
-.orow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:baseline;padding:7px 0;border-top:1px solid var(--line)}
-.orow:first-of-type{border-top:0}
-.orow .n{font-size:14px;font-weight:600}
-.orow .n small{display:block;font-size:12px;color:var(--muted);font-weight:400}
-.orow .days{font-size:22px;font-weight:800;text-align:right;min-width:74px}
-.orow .days small{font-size:12px;font-weight:600;margin-left:2px}
-.orow .when{font-size:12px;color:var(--muted);text-align:right;min-width:64px}
-.orow.warn .days{color:var(--warn)} .orow.alert .days{color:var(--alert)} .orow.ok .days{color:var(--ok)}
-.orow.warn{background:linear-gradient(90deg,var(--warn-bg),transparent 70%)}
-.orow.alert{background:linear-gradient(90deg,var(--alert-bg),transparent 70%)}
+/* 病棟ラウンド：横4つ */
+.wards{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.ward{background:var(--surface);border:2px solid var(--line);border-radius:12px;padding:8px 4px;min-height:68px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.ward b{font-size:15px}
+.ward .st{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ward.ok{border-color:var(--ok);background:var(--ok-bg)} .ward.ok .st{color:var(--ok);font-weight:700}
+.ward:active{transform:scale(.97)}
 
-/* 場所の一覧 */
+/* 血液ガス：1行1台のリスト */
 .list{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:13px 12px 13px 14px;border-bottom:1px solid var(--line);border-left:6px solid transparent}
+.row{display:block;width:100%;text-align:left;padding:10px 12px 10px 14px;border-bottom:1px solid var(--line);border-left:6px solid transparent}
 .row:last-child{border-bottom:0}
 .row:active{background:var(--bg)}
-.row.alert{border-left-color:var(--alert)}
-.row b{font-size:18px;flex:1}
-.row .cnt{font-size:13px;color:var(--muted)}
-.chip{font-size:12px;padding:1px 9px;border-radius:99px;background:var(--line);color:var(--muted);white-space:nowrap;font-weight:600}
+.row.warn{border-left-color:var(--warn-line)} .row.alert{border-left-color:var(--alert)}
+.row-top{display:flex;align-items:baseline;gap:8px}
+.row-top b{font-size:17px}
+.row-top .model{font-size:11px;color:var(--muted);flex:1}
+.chip{font-size:12px;padding:1px 9px;border-radius:99px;background:var(--line);color:var(--muted);white-space:nowrap}
 .chip.done{background:var(--ok-bg);color:var(--ok)} .chip.part{background:var(--warn-bg);color:var(--warn)}
-.chip.bad{background:var(--alert-bg);color:var(--alert)} .chip.pic{background:var(--accent-soft);color:var(--accent)}
-.chev{color:var(--faint);font-size:18px}
+.chev{color:var(--faint);font-size:18px;margin-left:2px}
+.minis{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}
+.mini{font-size:13px;padding:2px 8px;border-radius:7px;background:var(--bg);white-space:nowrap;display:inline-flex;gap:6px;align-items:baseline}
+.mini em{font-style:normal;font-size:11px;color:var(--muted)}
+.mini span{border-radius:4px}
+.mini .prev,.mini .none{color:var(--faint)}
+.mini .warn{background:var(--warn-bg);color:var(--warn);font-weight:700;padding:0 4px}
+.mini .alert{background:var(--alert-bg);color:var(--alert);font-weight:700;padding:0 4px}
 
 /* 入力画面 */
 .entry-head{display:flex;align-items:center;gap:8px}
 .back{font-size:15px;color:var(--accent);font-weight:600;padding:8px 0}
-.entry-head h2{margin:0;flex:1;text-align:right;color:var(--ink);font-size:21px}
+.entry-head h2{margin:0;flex:1;text-align:right;color:var(--ink);font-size:20px}
+.entry-head h2 small{display:block;font-size:12px;color:var(--muted);font-weight:400}
 .sub-head{font-size:13px;color:var(--muted);margin:2px 0 10px}
 .sub-head .ghost{color:var(--faint)}
-.grp{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
-.grp-h{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--accent-soft)}
-.grp-h b{flex:1;font-size:15px}
-.grp-h button{font-size:13px;font-weight:700;color:var(--accent);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:4px 11px}
-.bankrow{display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--accent-soft);border-top:1px solid var(--line);font-size:13px;color:var(--muted);flex-wrap:wrap}
-.bankrow b{color:var(--ink);font-size:13px}
-.usechip{font-size:11px;font-weight:700;padding:1px 8px;border-radius:99px;margin-left:6px;vertical-align:2px;background:var(--accent);color:var(--on-accent)}
-.usechip.stby{background:var(--line);color:var(--muted)}
-.bankrow .stp{display:flex;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;margin-left:auto}
-.bankrow .stp button{width:40px;height:36px;font-size:20px;font-weight:700;color:var(--accent)}
-.bankrow .stp span{min-width:46px;text-align:center;font-size:16px;font-weight:700;color:var(--ink)}
-.it{display:flex;align-items:center;gap:8px;padding:8px 10px 8px 12px;border-top:1px solid var(--line);flex-wrap:wrap}
-.it:first-of-type{border-top:0}
-.it .nm{flex:1 1 140px;min-width:0;font-size:15px;font-weight:600;line-height:1.3}
-.it .nm small{display:block;font-size:12px;color:var(--faint);font-weight:400}
-.it .ctl{display:flex;gap:6px;align-items:center;margin-left:auto;flex-wrap:wrap;justify-content:flex-end}
-.it.alert{background:var(--alert-bg)}
-.seg{display:flex;gap:5px}
-.seg button{width:58px;height:44px;border-radius:10px;border:2px solid var(--line);font-size:17px;font-weight:700;background:var(--bg)}
+.grp{margin-bottom:10px}
+.grp h3{font-size:14px;margin:0 2px 5px;color:var(--muted);font-weight:600}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:10px 12px;text-align:left;min-height:92px;
+  display:flex;flex-direction:column;justify-content:space-between}
+.tile .lab{font-size:13px;color:var(--muted);font-weight:600}
+.tile .tv{font-size:30px;font-weight:700;line-height:1.1}
+.tile .tv small{font-size:14px;font-weight:500;margin-left:3px}
+.tile .tsub{font-size:12px;min-height:16px}
+.tile.empty .tv{color:var(--faint);font-weight:500}
+.tile.empty .tsub{color:var(--faint)}
+.tile .ph{color:var(--faint)}
+.tile.act{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.tile.warn{background:var(--warn-bg);border-color:var(--warn-line)} .tile.warn .tsub,.tile.warn .lab{color:var(--warn)}
+.tile.alert{background:var(--alert-bg);border-color:var(--alert)} .tile.alert .tsub,.tile.alert .lab{color:var(--alert)}
+.tile.warn.act,.tile.alert.act{box-shadow:0 0 0 3px var(--accent)}
+
+.brow{background:var(--surface);border:2px solid var(--line);border-radius:14px;padding:8px 8px 8px 14px;display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.brow .bl{flex:1;font-weight:700;font-size:17px}
+.brow .bl em{font-style:normal;font-size:11px;color:var(--alert);margin-left:6px;font-weight:600}
+.brow .bl small{display:block;font-size:12px;color:var(--faint);font-weight:400}
+.brow.ok{border-color:var(--ok)} .brow.alert{border-color:var(--alert)}
+.seg{display:flex;gap:6px}
+.seg button{width:78px;height:54px;border-radius:12px;border:2px solid var(--line);font-size:18px;font-weight:700;background:var(--bg)}
 .seg .y.sel{background:var(--ok);border-color:var(--ok);color:#fff}
 .seg .n.sel{background:var(--alert);border-color:var(--alert);color:#fff}
-.seg .y.prev{border-style:dashed;border-color:var(--ok);color:var(--ok)}
-.chips{display:flex;gap:5px}
-.chips button{min-width:46px;height:44px;padding:0 9px;border-radius:10px;border:2px solid var(--line);font-size:15px;font-weight:700;background:var(--bg)}
-.chips button.sel{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
-.chips button.prev{border-style:dashed;border-color:var(--faint)}
-.chips.lv button{min-width:40px;padding:0 4px}
-.it .nm .saved{color:var(--ok);font-weight:600}
-.savebar button.done{background:var(--surface);color:var(--accent);border:2px solid var(--accent)}
-.vbox{min-width:104px;height:44px;border-radius:10px;border:2px solid var(--line);background:var(--surface);padding:0 10px;text-align:right;font-size:20px;font-weight:700}
-.vbox small{font-size:12px;font-weight:500;margin-left:3px;color:var(--muted)}
-.vbox.empty{color:var(--faint);font-weight:500}
-.vbox.act{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-.vbox.alert{border-color:var(--alert);color:var(--alert);background:var(--alert-bg)}
-.cam{width:44px;height:44px;border-radius:10px;background:var(--alert);color:#fff;display:grid;place-items:center}
-.cam svg{width:22px;height:22px}
-
-.photos{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:10px}
-.photos-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.photos-h b{flex:1;font-size:15px}
-.addpic{display:flex;gap:6px;align-items:center;background:var(--accent);color:var(--on-accent);border-radius:99px;padding:7px 14px;font-weight:700;font-size:14px}
-.addpic svg{width:18px;height:18px}
-.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
-.thumb{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--empty);border:1px solid var(--line)}
-.thumb img{width:100%;height:100%;object-fit:cover;display:block}
-.thumb span{position:absolute;left:0;right:0;bottom:0;font-size:10.5px;line-height:1.25;padding:3px 5px;background:rgba(10,20,30,.62);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.thumb em{position:absolute;top:4px;right:4px;font-style:normal;font-size:10px;background:var(--warn-bg);color:var(--warn);border-radius:6px;padding:0 5px;font-weight:700}
+.notebox{margin-top:6px}
 .notebox textarea{width:100%;font:inherit;font-size:15px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px}
+.linkbtn{color:var(--accent);font-weight:600;font-size:14px;padding:10px 2px}
 
-.savebar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 10px)}
-.savebar button{display:block;width:100%;max-width:576px;margin:0 auto;height:56px;border-radius:14px;background:var(--accent);color:var(--on-accent);font-size:18px;font-weight:700}
-
-.sheet{position:fixed;left:0;right:0;bottom:0;z-index:7;background:var(--surface);border-top:1px solid var(--line);
-  box-shadow:0 -8px 24px rgba(10,30,40,.14);padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 10px)}
-.sheet.anim{animation:up .16s ease-out}
-@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
-.sheet-in{max-width:576px;margin:0 auto}
-.sheet-head{display:flex;align-items:center;gap:6px;margin-bottom:6px}
-.sheet-head b{flex:1;font-size:15px;line-height:1.25}
-.sheet-head b small{display:block;font-size:12px;color:var(--muted);font-weight:500}
-.sheet-head button{height:40px;padding:0 12px;border-radius:10px;font-weight:700;font-size:14px;background:var(--key)}
-.sheet-head .go{background:var(--accent);color:var(--on-accent)}
-.readout{font-size:34px;font-weight:700;text-align:right;padding:0 4px;min-height:44px}
-.readout small{font-size:15px;color:var(--muted);margin-left:4px;font-weight:500}
-.readout.alert{color:var(--alert)}
-.hint{font-size:13px;min-height:18px;margin:0 4px 6px;color:var(--muted);text-align:right}
-.hint.alert{color:var(--alert);font-weight:700}
-.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
-.keypad button{background:var(--key);height:54px;border-radius:12px;font-size:25px;font-weight:600}
-.keypad button:active{background:var(--line)}
-.keypad button{touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .06s,background .06s}
-.keypad button.down{background:var(--line);transform:scale(.95)}
-
-/* 推移 */
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
-.card h3{margin:0;font-size:16px}
-.card .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
-.card .stats div{background:var(--bg);border-radius:10px;padding:6px 8px;font-size:12px;color:var(--muted)}
-.card .stats b{display:block;font-size:18px;color:var(--ink)}
-.card .stats .warn b{color:var(--warn)} .card .stats .alert b{color:var(--alert)}
-svg.chart{width:100%;height:auto;display:block}
-svg .ax{stroke:var(--line);stroke-width:1}
-svg text{fill:var(--muted);font-size:10px}
-svg .ln{fill:none;stroke:var(--accent);stroke-width:2.2}
-svg .pt{fill:var(--accent)}
-svg .ev{fill:var(--warn-line)}
-svg .th{stroke:var(--alert);stroke-dasharray:4 3}
-svg .thl{fill:var(--alert)}
-svg .fc{stroke:var(--muted);stroke-dasharray:3 4;stroke-width:2}
-.seg-tabs{display:flex;gap:6px;margin:4px 0 10px}
-.seg-tabs button{flex:1;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:700;font-size:14px}
-.seg-tabs button.on{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
-
-/* 月別 */
+/* 月別一覧 */
 .mbar{display:flex;align-items:center;gap:8px;margin:2px 0 8px}
 .mbar .d{flex:1;text-align:center;font-size:20px;font-weight:700}
 .mbar button{width:42px;height:42px;border-radius:12px;background:var(--surface);font-size:22px;border:1px solid var(--line)}
 .filters{display:flex;gap:6px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
 .filters button{flex:none;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--surface);font-size:13px;font-weight:600}
 .filters button.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
-.mwrap{overflow:auto;max-height:calc(100vh - 220px);background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.mwrap{overflow:auto;max-height:calc(100vh - 230px);background:var(--surface);border:1px solid var(--line);border-radius:12px;-webkit-overflow-scrolling:touch}
 .mt{border-collapse:separate;border-spacing:0;font-size:12px}
 .mt th,.mt td{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:0;height:34px}
-.mt thead th{position:sticky;top:0;z-index:2;background:var(--surface);font-weight:600;min-width:44px;text-align:center;line-height:1.15;color:var(--muted)}
+.mt thead th{position:sticky;top:0;z-index:2;background:var(--surface);font-weight:600;min-width:42px;text-align:center;line-height:1.15;color:var(--muted)}
 .mt thead th.sun{color:var(--alert)} .mt thead th.sat{color:#3b6fd8}
 .mt thead th.td{background:var(--accent);color:var(--on-accent)}
-.mt .sl{position:sticky;left:0;z-index:1;background:var(--surface);text-align:left;padding:2px 8px;min-width:128px;max-width:128px;font-weight:600;line-height:1.2;font-size:11.5px}
+.mt .sl{position:sticky;left:0;z-index:1;background:var(--surface);text-align:left;padding:2px 8px;min-width:118px;max-width:118px;font-weight:600;line-height:1.2}
 .mt thead .sl{z-index:3}
-.mt tr.gh .sl{background:var(--bg);font-size:12.5px;color:var(--ink)}
+.mt .sl small{display:block;font-size:10px;color:var(--muted);font-weight:400}
+.mt tr.gh .sl{background:var(--bg);font-size:13px;color:var(--ink)}
 .mt tr.gh td{background:var(--bg)}
-.mt td{text-align:center;min-width:44px}
-.mt td button{width:100%;height:100%;font-size:11.5px;font-variant-numeric:tabular-nums;font-weight:600;line-height:1.1}
-.mt td.ok{color:var(--ok)} .mt td.alert{background:var(--alert-bg);color:var(--alert)} .mt td.miss{background:var(--empty)}
-.legend{font-size:12px;color:var(--muted);margin-top:8px}
+.mt td{text-align:center;min-width:42px}
+.mt td button{width:100%;height:100%;font-size:12px;font-variant-numeric:tabular-nums;font-weight:600}
+.mt td.ok{color:var(--ok)} .mt td.warn{background:var(--warn-bg);color:var(--warn)} .mt td.alert{background:var(--alert-bg);color:var(--alert)}
+.mt td.miss{background:var(--empty)}
+.mt td.tdc{box-shadow:inset 2px 0 0 var(--accent),inset -2px 0 0 var(--accent)}
+.legend{font-size:12px;color:var(--muted);margin-top:8px;display:flex;gap:12px;flex-wrap:wrap}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px;border:1px solid var(--line)}
 
-/* 写真ビューア */
+/* 保存バー */
+/* 写真 */
+.h2row{display:flex;align-items:center;gap:8px;margin:16px 2px 6px}
+.h2row h2{margin:0;flex:1}
+.campill{display:flex;gap:5px;align-items:center;font-size:13px;font-weight:700;color:var(--accent);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:4px 11px}
+.campill svg,.addpic svg{width:17px;height:17px}
+.cam{width:46px;height:46px;border-radius:10px;background:var(--alert);color:#fff;display:grid;place-items:center;flex:none}
+.cam svg{width:22px;height:22px}
+.photos{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:10px}
+.photos-h{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.photos-h b{flex:1;font-size:15px}
+.addpic{display:flex;gap:6px;align-items:center;background:var(--accent);color:var(--on-accent);border-radius:99px;padding:7px 14px;font-weight:700;font-size:14px}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+.thumbs.mini-t{margin-top:8px}
+.thumb{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--empty);border:1px solid var(--line);padding:0}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb span{position:absolute;left:0;right:0;bottom:0;font-size:10.5px;line-height:1.25;padding:3px 5px;background:rgba(10,20,30,.62);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+.thumb em{position:absolute;top:4px;right:4px;font-style:normal;font-size:10px;background:var(--warn-bg);color:var(--warn);border-radius:6px;padding:0 5px;font-weight:700}
+.chip.pic{background:var(--accent-soft);color:var(--accent)}
 .viewer{position:fixed;inset:0;z-index:30;background:rgba(5,10,16,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
 .viewer img{max-width:100%;max-height:78vh;border-radius:8px}
 .viewer p{color:#e5ecf4;font-size:14px;margin:10px 0 0;text-align:center}
 .viewer button{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:14px;color:#fff;font-size:30px;width:48px;height:48px}
 
+.savebar{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);
+  padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 10px)}
+.savebar button{display:block;width:100%;max-width:536px;margin:0 auto;height:56px;border-radius:14px;background:var(--accent);color:var(--on-accent);font-size:18px;font-weight:700}
+
+/* テンキー（下から出る） */
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:7;background:var(--surface);border-top:1px solid var(--line);
+  box-shadow:0 -8px 24px rgba(10,30,40,.12);padding:10px 12px calc(env(safe-area-inset-bottom,0px) + 10px)}
+.sheet.anim{animation:up .16s ease-out}
+@keyframes up{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.sheet-in{max-width:536px;margin:0 auto}
+.sheet-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.sheet-head b{flex:1;font-size:16px}
+.sheet-head button{height:40px;padding:0 14px;border-radius:10px;font-weight:700;font-size:15px;background:var(--key)}
+.sheet-head .go{background:var(--accent);color:var(--on-accent)}
+.hint{font-size:13px;min-height:19px;margin:0 2px 6px;color:var(--muted)}
+.hint.warn{color:var(--warn);font-weight:700} .hint.alert{color:var(--alert);font-weight:700} .hint.ok{color:var(--ok)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.keypad button{background:var(--key);height:56px;border-radius:12px;font-size:25px;font-weight:600}
+.keypad button:active{background:var(--line)}
+.keypad button{touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .06s,background .06s}
+.keypad button.down{background:var(--line);transform:scale(.95)}
+
+/* グラフ */
+.chartbox{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
+.chartbox h3{margin:0 0 2px;font-size:16px}
+.chartbox p{margin:0 0 6px;font-size:13px;color:var(--muted)}
+svg.chart{width:100%;height:auto;display:block}
+svg .ax{stroke:var(--line);stroke-width:1}
+svg text{fill:var(--muted);font-size:10px}
+svg .ln{fill:none;stroke:var(--accent);stroke-width:2.2}
+svg .pt{fill:var(--accent)}
+svg .th{stroke:var(--alert);stroke-dasharray:4 3}
+svg .tw{stroke:var(--warn-line);stroke-dasharray:4 3}
+svg .thl{fill:var(--alert)}
+svg .fc{stroke:var(--muted);stroke-dasharray:3 4;stroke-width:2}
+
 #toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 62px);transform:translateX(-50%) translateY(-12px);opacity:0;visibility:hidden;
   background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:12px;font-size:15px;width:max-content;max-width:92vw;
-  display:flex;gap:16px;align-items:center;transition:transform .18s,opacity .18s,visibility .18s;z-index:40;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+  display:flex;gap:16px;align-items:center;transition:transform .18s,opacity .18s,visibility .18s;z-index:20;box-shadow:0 6px 20px rgba(0,0,0,.18)}
 #toast.show{transform:translateX(-50%) translateY(0);opacity:1;visibility:visible}
 #toast button{color:var(--toast-btn);font-weight:700;white-space:nowrap}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
@@ -241,9 +237,8 @@ svg .fc{stroke:var(--muted);stroke-dasharray:3 4;stroke-width:2}
 </head>
 <body>
 <header class="top">
-  <h1>医療ガス点検</h1>
+  <h1>ラウンド点検表</h1>
   <span id="sync"></span>
-  <button class="icon" id="trendBtn" data-act="trend" aria-label="残量の推移" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M4 16l5-5 4 3 7-8"/><path d="M15 6h5v5"/></svg></button>
   <button class="icon" id="cal" data-act="month" aria-label="月別一覧" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8 14h2M14 14h2M8 17.5h2" stroke-width="2.4"/></svg></button>
   <button class="icon" id="theme" data-act="theme"></button>
   <button class="who" id="who" data-act="who" hidden></button>
@@ -256,31 +251,41 @@ svg .fc{stroke:var(--muted);stroke-dasharray:3 4;stroke-width:2}
 /* ===== 設定 =====
  * GitHub Pages で使う場合：GASを「ウェブアプリ」としてデプロイしたURLを入れてください。
  * （GAS単体で使う場合は空欄のままでOK） */
-const API_URL = 'https://script.google.com/macros/s/AKfycbwc2tRybZfhgIm9DUxW3zVz9jZBenIph1smzccwHWVV-PHrGgf9N5ufPzS0BZFRbpUbJw/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbwyzMypAaE6KVW9GC7blesGNCQT2jEyOPvDZO3yaAY9y-lFR5o3BbnG0lJvUCFisUeoDA/exec';
 
 const IS_GAS = typeof google !== 'undefined' && google.script && google.script.run;
 const app = document.getElementById('app');
 
+/* ---------- 端末保存 ---------- */
 const store = {
-  get(k, d) { try { const v = localStorage.getItem('mg_' + k); return v ? JSON.parse(v) : d; } catch (_) { return d; } },
-  set(k, v) { try { localStorage.setItem('mg_' + k, JSON.stringify(v)); return true; } catch (_) { return false; } }
+  get(k, d) { try { const v = localStorage.getItem('rnd_' + k); return v ? JSON.parse(v) : d; } catch (_) { return d; } },
+  set(k, v) { try { localStorage.setItem('rnd_' + k, JSON.stringify(v)); return true; } catch (_) { return false; } }
 };
 
-/* ---------- 表示テーマ ---------- */
-const SVG = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
-const CAM = SVG('<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>');
-const THEMES = {
-  auto: [SVG('<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/>'), '自動（端末の設定に合わせる）'],
-  light: [SVG('<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/>'), '明るい表示'],
-  dark: [SVG('<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'), '暗い表示']
+const S = {
+  apiUrl: API_URL || store.get('apiUrl', ''),
+  user: '', lastUser: store.get('lastUser', ''),
+  date: todayStr(), data: null, loading: false, error: '',
+  view: 'who', loc: null, items: [], draft: {}, note: '', active: null, dirty: false, chart: null
 };
+
+/* ---------- 表示テーマ（自動 → 明るい → 暗い） ---------- */
+const SVG = p => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const THEMES = {
+  auto:  [SVG('<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/>'), '自動（端末の設定に合わせる）'],
+  light: [SVG('<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/>'), '明るい表示'],
+  dark:  [SVG('<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'), '暗い表示']
+};
+const CAM = SVG('<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>');
 let theme = store.get('theme', 'auto');
 function applyTheme() {
-  if (theme === 'auto') delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = theme;
+  if (theme === 'auto') delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = theme;
   const b = document.getElementById('theme');
-  b.innerHTML = THEMES[theme][0]; b.setAttribute('aria-label', '表示の切り替え：' + THEMES[theme][1]);
+  b.innerHTML = THEMES[theme][0];
+  b.setAttribute('aria-label', '表示の切り替え：' + THEMES[theme][1]);
   const dark = theme === 'dark' || (theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
-  document.querySelector('meta[name="theme-color"]').content = dark ? '#162b44' : '#24456b';
+  document.querySelector('meta[name="theme-color"]').content = dark ? '#123540' : '#0e5c66';
 }
 applyTheme();
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
@@ -292,48 +297,45 @@ function shiftDate(s, n) { const [y, m, d] = s.split('-').map(Number); const t =
 function fmtJP(s) { const [y, m, d] = s.split('-').map(Number); return `${m}/${d}(${'日月火水木金土'[new Date(y, m - 1, d).getDay()]})`; }
 function md(s) { return `${+s.slice(5, 7)}/${+s.slice(8, 10)}`; }
 function dayNum(s) { const [y, m, d] = s.split('-').map(Number); return Date.UTC(y, m - 1, d) / 864e5; }
-function shiftMonth(ym, n) { const [y, m] = ym.split('-').map(Number); const t = new Date(y, m - 1 + n, 1); return `${t.getFullYear()}-${pad(t.getMonth() + 1)}`; }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-/* ---------- 項目の扱い ---------- */
-const label = i => i.item_name + (i.sub ? ' ' + i.sub : '');
-const hasVal = v => v !== undefined && v !== null && v !== '';
-/* 小数点第3位を四捨五入して第2位まで（0.845 → 0.85。2進数の誤差で 0.84 にならないよう文字で桁をずらす） */
-const round2 = x => Math.round(Number(Number(x) + 'e2')) / 100;
-const LEVELS = ['5', '4', '3', '2', '1', '0'];   // 液化酸素タンクのレベル（5＝満タン）
-function isDone(i, d) {
-  if (!d) return false;
-  if (i.input_type === 'bool') return d.v === true || d.v === false;
-  if (i.input_type === 'num' || i.input_type === 'level') return hasVal(d.v);
-  if (i.input_type === 'choice') return !!d.c;
-  return !!d.c || hasVal(d.v);
-}
-function levelOf(i, d) {
-  if (!isDone(i, d)) return '';
-  if (i.input_type === 'bool') return d.v ? 'ok' : 'alert';
-  if ((i.input_type === 'num' || i.input_type === 'pair' || i.input_type === 'level') && hasVal(d.v)) {
-    const v = Number(d.v);
-    if ((i.low !== null && v < i.low) || (i.high !== null && v > i.high)) return 'alert';
+/* 「1125」→ 期限日。今日より60日以上前になるなら翌年とみなす */
+function mmddToISO(s) {
+  if (!/^\d{4}$/.test(s || '')) return null;
+  const m = +s.slice(0, 2), d = +s.slice(2);
+  const y = new Date().getFullYear();
+  for (const yy of [y, y + 1]) {
+    const t = new Date(yy, m - 1, d);
+    if (t.getMonth() !== m - 1 || t.getDate() !== d) return null;
+    const iso = `${yy}-${pad(m)}-${pad(d)}`;
+    if (dayNum(iso) >= dayNum(todayStr()) - 60) return iso;
   }
+  return null;
+}
+const isoToMMDD = s => s.slice(5, 7) + s.slice(8, 10);
+
+/* ---------- 色分け（サーバー側 levelOf_ と同じ規則） ---------- */
+function levelOf(i, v, ref) {
+  if (v === undefined || v === null || v === '') return '';
+  if (i.input_type === 'boolean') return v ? 'ok' : 'alert';
+  const x = i.input_type === 'date' ? dayNum(v) - dayNum(ref) : Number(v);
+  if (i.alert_at != null && x <= i.alert_at) return 'alert';
+  if (i.warn_at != null && x <= i.warn_at) return 'warn';
   return 'ok';
 }
-function fmtVal(i, d) {
-  if (!d) return '';
-  if (i.input_type === 'bool') return d.v ? '✓' : '×';
-  if (i.input_type === 'num') return hasVal(d.v) ? String(round2(d.v)) : '';
-  if (i.input_type === 'level') return hasVal(d.v) ? String(d.v) : '';
-  if (i.input_type === 'choice') return d.c || '';
-  return [d.c, hasVal(d.v) ? round2(d.v) : ''].filter(String).join(' ');
+function daysText(v, ref) {
+  const d = dayNum(v) - dayNum(ref);
+  return d < 0 ? `${-d}日超過` : d === 0 ? '本日期限' : `あと${d}日`;
+}
+const dispName = n => n.replace(/^SC/, 'センサーカセット');   // 表示名（データはSCのまま）
+const shortName = n => dispName(n).replace('溶液パック', '溶液').replace(/残回数$|期限$/, '');
+function fmtShort(i, v) {
+  if (i.input_type === 'boolean') return v ? '✓' : '✗';
+  if (i.input_type === 'date') return md(v);
+  return v + i.unit;
 }
 
 /* ---------- 通信 ---------- */
-const S = {
-  apiUrl: API_URL || store.get('apiUrl', ''),
-  user: '', lastUser: store.get('lastUser', ''),
-  date: todayStr(), data: null, loading: false, error: '',
-  view: 'who', loc: null, draft: {}, note: '', active: null, dirty: false, sheetAnim: false, photoTarget: ''
-};
-
 function call(action, payload = {}) {
   const req = Object.assign({ action }, payload);
   const unwrap = r => { if (!r || !r.ok) { const e = new Error(r ? r.error : '応答がありません'); e.server = true; throw e; } return r.data; };
@@ -342,70 +344,94 @@ function call(action, payload = {}) {
       .withSuccessHandler(r => { try { res(unwrap(r)); } catch (e) { rej(e); } })
       .withFailureHandler(rej).api(req));
   }
-  return fetch(S.apiUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(req) })
-    .then(r => r.json()).then(unwrap);
+  return fetch(S.apiUrl, {
+    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(req)
+  }).then(r => r.json()).then(unwrap);
 }
 
 /* =========================================================
- * 送信箱（楽観的UI）：操作は端末に保存して即反映、裏でまとめて送信
+ * 送信箱（楽観的UI）
+ *  ・操作はまず端末の送信箱に入れて画面に即反映 → 裏でまとめて送信
+ *  ・通信できなければ端末に残して自動で再送
  * ======================================================= */
 const OB = { ops: store.get('outbox', []), busy: false, timer: null };
 const SENT = [];
 OB.ops.forEach(o => delete o.inflight);
-function saveOutbox() {
-  const ok = store.set('outbox', OB.ops.map(({ inflight, ...o }) => o));
-  if (!ok) toast('端末の保存容量が足りません。通信できる場所で開き直してください');
-}
+// 旧バージョンの未送信データを引き継ぐ
+store.get('queue', []).forEach(j => OB.ops.push({ id: 'old' + Math.random(), type: 'save', date: j.date, user: j.user, note: j.note || '', records: j.records }));
+store.set('queue', []);
+const saveOutbox = () => {
+  if (!store.set('outbox', OB.ops.map(({ inflight, ...o }) => o))) toast('端末の保存容量が足りません。通信できる場所で開き直してください');
+};
+
 function enqueue(op) {
-  op.id = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-  OB.ops.push(op); saveOutbox(); applyOp(op); kick(400);
+  op.id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  if (op.type === 'delete') {
+    // まだ送っていない「完了」を取り消すだけなら、送信そのものをやめる
+    const k = OB.ops.findIndex(o => !o.inflight && o.type === 'save' && o.date === op.date &&
+      o.records.length === 1 && o.records[0].item_id === op.item_id);
+    if (k >= 0) { OB.ops.splice(k, 1); saveOutbox(); applyOp(op); updateSync(); return; }
+  } else if (op.type === 'save') {
+    OB.ops = OB.ops.filter(o => !(!o.inflight && o.type === 'delete' && o.date === op.date && op.records.some(r => r.item_id === o.item_id)));
+  }
+  OB.ops.push(op); saveOutbox(); applyOp(op);
+  kick(350);   // 連続タップは1回の通信にまとめる
 }
+
 function applyOp(op) {
-  if (!S.data || op.date !== S.date || op.type !== 'save') return;
-  op.records.forEach(r => {
-    const it = S.data.items.find(i => i.item_id === r.item_id);
-    if (it) it.today = { c: r.c || '', v: r.v, user: op.user, note: op.note };
-  });
+  if (!S.data || op.date !== S.date) return;
+  if (op.type === 'save') {
+    op.records.forEach(r => { const it = findItem(r.item_id); if (it) it.today = { value: r.value, user: op.user }; });
+  } else if (op.type === 'delete') {
+    const it = findItem(op.item_id); if (it) it.today = null;
+  }
 }
+const findItem = id => S.data && S.data.items.find(i => i.item_id === id);
+
 function kick(delay) { clearTimeout(OB.timer); OB.timer = setTimeout(drain, delay); updateSync(); }
+
 async function drain() {
   if (OB.busy || !OB.ops.length) return;
   OB.busy = true;
   // 写真は1枚ずつ、記録はまとめて送る
   let batch = [];
   if (OB.ops[0].type === 'photo') batch = [OB.ops[0]];
-  else for (const o of OB.ops) { if (o.type === 'photo' || batch.length >= 20) break; batch.push(o); }
+  else for (const o of OB.ops) { if (o.type === 'photo' || batch.length >= 30) break; batch.push(o); }
   batch.forEach(o => o.inflight = true);
   updateSync();
   try {
-    const res = await call('sync', { ops: batch.map(({ inflight, preview, ...o }) => o) });
+    const res = await call('sync', { ops: batch.map(({ inflight, ...o }) => o) });
     OB.ops = OB.ops.filter(o => !batch.includes(o));
     batch.filter(o => o.type === 'photo').forEach(o => SENT.push(o));   // 送信済みの写真はこの端末ではそのまま表示し続ける
     if (batch.some(o => o.type === 'photo') && (S.view === 'entry' || S.view === 'home')) render();   // 「未送信」の表示を消す
     saveOutbox();
-    if (batch.some(o => o.type === 'bank')) load(true).then(() => { if (S.view === 'entry') mergeEntry(); });
     const failed = res.results.filter(r => !r.ok);
-    if (failed.length) toast('保存できなかった記録があります：' + failed[0].error);
+    if (failed.length) { toast('保存できなかった記録があります：' + failed[0].error); scheduleRefresh(0); }
     OB.busy = false;
     if (OB.ops.length) kick(0); else scheduleRefresh(1500);
   } catch (e) {
     batch.forEach(o => delete o.inflight);
     OB.busy = false;
     if (e.server) toast('送信エラー：' + e.message);
-    kick(e.server ? 20000 : 8000);
+    kick(e.server ? 20000 : 8000);   // 通信できるまで自動で再送
   }
   updateSync();
 }
+
 function updateSync() {
+  const el = document.getElementById('sync');
   const n = OB.ops.length;
-  document.getElementById('sync').textContent = !n ? '' : (navigator.onLine === false ? `未送信 ${n}件` : '送信中…');
+  el.textContent = !n ? '' : (navigator.onLine === false ? `未送信 ${n}件` : '送信中…');
 }
+
+/* 送信が終わったら、他の人の入力や予測を取り込む（入力中は邪魔しない） */
 let refreshTimer;
 function scheduleRefresh(delay) {
   clearTimeout(refreshTimer);
-  refreshTimer = setTimeout(() => { if (!OB.ops.length && (S.view === 'home' || S.view === 'trend')) load(true); }, delay);
+  refreshTimer = setTimeout(() => { if (!OB.ops.length && S.view === 'home') load(true); }, delay);
 }
 
+/* ---------- 読み込み ---------- */
 async function load(quiet) {
   S.loading = true; S.error = '';
   if (!quiet) render();
@@ -413,29 +439,34 @@ async function load(quiet) {
   try {
     const d = await call('bootstrap', { date });
     if (date !== S.date) { S.loading = false; return; }
-    S.data = d; store.set('cache', d);
+    S.data = d;
+    store.set('cache', d);
   } catch (e) {
     S.error = e.server ? e.message : '通信できません。入力は端末に保存され、あとで送信されます';
   }
-  OB.ops.forEach(applyOp);
+  OB.ops.forEach(applyOp);   // 未送信の操作を上書き表示
   S.loading = false;
-  if (['home', 'who', 'trend'].includes(S.view) || !quiet) render();
+  if (S.view === 'home' || S.view === 'who' || !quiet) render();
 }
+
+/* キャッシュから即表示（別の日なら値だけ空にする） */
 function fromCache() {
   const c = store.get('cache', null);
   if (!c) return null;
   if (c.date === S.date) return c;
   return Object.assign({}, c, { date: S.date, photos: [], items: c.items.map(i => Object.assign({}, i, {
-    previous: i.today && c.date < S.date ? { date: c.date, c: i.today.c, v: i.today.v } : i.previous, today: null })) });
+    previous: i.today && c.date < S.date ? { date: c.date, value: i.today.value } : i.previous, today: null })) });
 }
 
+/* ---------- トースト ---------- */
 let toastTimer;
-function toast(msg) {
+function toast(msg, undo) {
   const t = document.getElementById('toast');
-  t.innerHTML = `<span>${esc(msg)}</span>`;
+  t.innerHTML = `<span>${esc(msg)}</span>` + (undo ? '<button id="undo">元に戻す</button>' : '');
+  if (undo) document.getElementById('undo').onclick = () => { t.classList.remove('show'); undo(); };
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  toastTimer = setTimeout(() => t.classList.remove('show'), undo ? 4500 : 2600);
 }
 
 /* =================== 画面 =================== */
@@ -443,10 +474,9 @@ function render() {
   const w = document.getElementById('who');
   w.hidden = !S.user || S.view === 'who';
   w.textContent = S.user ? `${S.user} ▾` : '';
-  document.getElementById('cal').hidden = !S.user || ['month', 'who'].includes(S.view);
-  document.getElementById('trendBtn').hidden = !S.user || ['trend', 'who'].includes(S.view);
+  document.getElementById('cal').hidden = !S.user || S.view === 'month' || S.view === 'who';
   app.className = '';
-  ({ url: renderUrl, who: renderWho, home: renderHome, entry: renderEntry, month: renderMonth, trend: renderTrend })[S.view]();
+  ({ url: renderUrl, who: renderWho, home: renderHome, entry: renderEntry, chart: renderChart, month: renderMonth })[S.view]();
   updateSync();
 }
 
@@ -456,9 +486,10 @@ function renderUrl() {
     <p class="muted" style="font-size:14px">GASをウェブアプリとしてデプロイしたURLを入力してください。index.html の API_URL に書いておくと、この画面は出なくなります。</p>
     <input id="f-url" value="${esc(S.apiUrl)}" placeholder="https://script.google.com/macros/s/.../exec" inputmode="url" autocapitalize="off"
       style="width:100%;font:inherit;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink)">
-    <div style="margin-top:16px"><button data-act="saveUrl" style="width:100%;height:52px;border-radius:12px;background:var(--accent);color:var(--on-accent);font-weight:700">保存する</button></div>`;
+    <div class="savebar" style="position:static;background:none;border:0;padding:16px 0"><button data-act="saveUrl">保存する</button></div>`;
 }
 
+/* ---- 点検者を選ぶ（必須） ---- */
 function renderWho() {
   const staff = (S.data && S.data.staff) || [];
   let body;
@@ -469,56 +500,65 @@ function renderWho() {
 }
 
 /* ---- ホーム ---- */
-function locations() {
-  const out = [];
-  (S.data ? S.data.items : []).forEach(i => { if (!out.includes(i.location)) out.push(i.location); });
-  return out;
-}
-const dayLeftText = s => s.days_left === null ? '—' : (s.days_left >= 100 ? '100+' : String(Math.round(s.days_left * 10) / 10));
-
 function renderHome() {
   const items = S.data ? S.data.items : [];
-  const daily = items.filter(i => i.daily);
-  const done = daily.filter(i => i.today).length;
+  const done = items.filter(i => i.today).length;
+  const wards = items.filter(i => i.category_id === 'ward_round');
   const isToday = S.date === todayStr();
-  const oxy = S.data ? S.data.supply.filter(s => s.gas === '酸素' && s.current !== null && !s.reserve) : [];
   app.innerHTML = `
     <div class="datebar">
       <button data-act="prevDay" aria-label="前の日">‹</button>
       <div class="d num">${fmtJP(S.date)}${isToday ? '' : '<span class="past">過去の日付に記録しています</span>'}</div>
       <button data-act="nextDay" aria-label="次の日" ${isToday ? 'disabled' : ''}>›</button>
     </div>
-    <div class="progress"><i style="width:${daily.length ? done / daily.length * 100 : 0}%"></i></div>
-    <div class="ptext num">${done} / ${daily.length} 項目</div>
+    <div class="progress"><i style="width:${items.length ? done / items.length * 100 : 0}%"></i></div>
+    <div class="ptext num">${done} / ${items.length} 項目</div>
     ${S.error ? `<div class="banner err">${esc(S.error)}</div>` : ''}
     ${!S.data ? `<p class="muted">${S.loading ? '読み込んでいます…' : '表示できるデータがありません'}</p>` : `
-    ${oxy.length ? `<div class="oxy">
-      <div class="oxy-h"><b>酸素　あと何日使えるか</b><button data-act="trend">推移 ›</button></div>
-      ${oxy.map(s => `<div class="orow ${s.level}">
-        <span class="n">${esc(s.short)}<small class="num">${esc(s.side ? s.side + ' ' : '')}${s.current}${s.full ? ' / ' + s.full : ''}${esc(s.unit)}${s.avg !== null ? `・1日 ${s.avg}${esc(s.unit)}` : ''}</small>${s.detail ? `<small class="num">${esc(s.detail)}</small>` : ''}</span>
-        <span class="days num">${dayLeftText(s)}<small>日</small></span>
-        <span class="when num">${s.predicted ? md(s.predicted) + ' 頃' : 'データ不足'}</span></div>`).join('')}
-    </div>` : ''}
-    <h2>点検する場所</h2>
-    <div class="list">${locations().map(locRow).join('')}</div>`}`;
+    <div class="h2row"><h2>病棟ラウンド　タップで完了</h2><button class="campill" data-act="photo" data-loc="病棟ラウンド" data-id="">${CAM}写真</button></div>
+    <div class="wards">${wards.map(wardTile).join('')}</div>
+    ${thumbsHtml('病棟ラウンド', 'mini-t')}
+    <h2>血液ガス分析装置</h2>
+    <div class="list">${locations().map(([loc, its]) => bgRow(loc, its)).join('')}</div>`}`;
 }
 
-function locRow(loc) {
-  const its = S.data.items.filter(i => i.location === loc);
-  const daily = its.filter(i => i.daily);
-  const n = daily.filter(i => i.today).length;
-  const bad = its.filter(i => i.today && levelOf(i, i.today) === 'alert').length;
+function locations() {
+  const m = new Map();
+  (S.data ? S.data.items : []).filter(i => i.category_id === 'blood_gas').forEach(i => {
+    if (!m.has(i.location)) m.set(i.location, []);
+    m.get(i.location).push(i);
+  });
+  return [...m];
+}
+
+function wardTile(i) {
+  const t = i.today;
+  const st = t ? `✓ ${esc(t.user || '')}` : '未';
+  return `<button class="ward ${t ? 'ok' : ''}" data-act="ward" data-id="${esc(i.item_id)}"><b>${esc(i.location)}</b><span class="st">${st}</span></button>`;
+}
+
+function bgRow(loc, its) {
+  const nDone = its.filter(i => i.today).length;
+  const chip = nDone === its.length ? '<span class="chip done">入力済</span>'
+    : nDone ? '<span class="chip part">途中</span>' : '<span class="chip">未入力</span>';
+  const lv = its.map(i => i.today ? levelOf(i, i.today.value, S.date) : '');
+  const level = lv.includes('alert') ? 'alert' : lv.includes('warn') ? 'warn' : '';
+  const part = i => {
+    if (i.today) return `<span class="${levelOf(i, i.today.value, S.date)}">${esc(fmtShort(i, i.today.value))}</span>`;
+    if (i.previous) return `<span class="prev">${esc(fmtShort(i, i.previous.value))}</span>`;
+    return '<span class="none">－</span>';
+  };
+  // SC（期限＋残回数）／溶液（期限＋残回数）／記録紙 … のように1つずつまとめる
+  const minis = groups(its).map(g => `<span class="mini"><em>${esc(g.key !== null ? shortName(g.key) : g.items[0].i.item_name)}</em>${g.items.map(x => part(x.i)).join('')}</span>`).join('');
   const pics = photosFor(loc).length;
-  const chip = n === daily.length ? '<span class="chip done">入力済</span>' : n ? '<span class="chip part">途中</span>' : '<span class="chip">未入力</span>';
-  return `<button class="row ${bad ? 'alert' : ''}" data-act="entry" data-loc="${esc(loc)}">
-    <b>${esc(loc)}</b>
-    ${bad ? `<span class="chip bad">異常 ${bad}</span>` : ''}${pics ? `<span class="chip pic">写真 ${pics}</span>` : ''}
-    <span class="cnt num">${n}/${daily.length}</span>${chip}<span class="chev">›</span></button>`;
+  return `<button class="row ${level}" data-act="entry" data-loc="${esc(loc)}">
+    <div class="row-top"><b>${esc(loc)}</b><span class="model">${esc(its[0].model)}</span>${pics ? `<span class="chip pic">写真 ${pics}</span>` : ''}${chip}<span class="chev">›</span></div>
+    <div class="minis num">${minis}</div></button>`;
 }
 
 /* ---- 写真 ---- */
 function photosFor(loc) {
-  const server = (S.data && S.data.photos || []).filter(p => p.location === loc)
+  const server = ((S.data && S.data.photos) || []).filter(p => p.location === loc)
     .map(p => { const mine = SENT.find(o => o.id === p.photo_id);
       return { key: p.file_id, file_id: mine ? '' : p.file_id, src: mine ? 'data:image/jpeg;base64,' + mine.data : '', name: p.item_name, user: p.user, time: p.time }; });
   const ids = new Set(((S.data && S.data.photos) || []).map(p => p.photo_id));
@@ -527,6 +567,14 @@ function photosFor(loc) {
     .filter(o => o.date === S.date && o.location === loc)
     .map(o => ({ key: o.id, src: 'data:image/jpeg;base64,' + o.data, name: o.item_name, user: o.user, pending: !o.sent }));
   return server.concat(local);
+}
+function thumbsHtml(loc, cls) {
+  const pics = photosFor(loc);
+  if (!pics.length) return '';
+  pics.forEach(p => { if (p.file_id && !THUMBS[p.file_id]) loadThumb(p.file_id); });
+  return `<div class="thumbs ${cls || ''}">${pics.map(p => `<button class="thumb" data-act="view" data-loc="${esc(loc)}" data-key="${esc(p.key)}">
+    <img ${p.src ? `src="${p.src}"` : `data-fid="${esc(p.file_id)}" ${THUMBS[p.file_id] && THUMBS[p.file_id] !== 'loading' ? `src="${THUMBS[p.file_id]}"` : ''}`} alt="">
+    ${p.pending ? '<em>未送信</em>' : ''}<span>${esc(p.name)}</span></button>`).join('')}</div>`;
 }
 const THUMBS = {};
 function loadThumb(id) {
@@ -537,12 +585,12 @@ function loadThumb(id) {
     document.querySelectorAll(`img[data-fid="${id}"]`).forEach(img => img.src = r.data);
   }).catch(() => { delete THUMBS[id]; });
 }
-/* 撮った写真を縮小（長辺1280px・JPEG）して送る。容量を抑えて通信と端末保存を軽くする */
+/* 撮った写真を縮小（長辺1280px・JPEG）。通信量と端末の保存容量を抑える */
 function compress(file) {
   return new Promise((res, rej) => {
     const img = new Image(), url = URL.createObjectURL(file);
     img.onload = () => {
-      const max = 1280, r = Math.min(1, max / Math.max(img.width, img.height));
+      const r = Math.min(1, 1280 / Math.max(img.width, img.height));
       const c = document.createElement('canvas');
       c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
       c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
@@ -553,301 +601,22 @@ function compress(file) {
     img.src = url;
   });
 }
+const PT = { loc: '', id: '' };
 document.getElementById('photoInput').addEventListener('change', async ev => {
   const f = ev.target.files && ev.target.files[0];
   ev.target.value = '';
   if (!f) return;
   try {
     const data = await compress(f);
-    const it = S.data.items.find(i => i.item_id === S.photoTarget);
-    enqueue({ type: 'photo', date: S.date, user: S.user, location: S.loc, item_id: S.photoTarget || '', item_name: it ? it.group + ' ' + label(it) : '（場所全体）', note: '', data });
+    const it = PT.id ? findItem(PT.id) : null;
+    const name = it ? (it.category_id === 'ward_round' ? it.location : dispName(it.item_name)) : (PT.loc === '病棟ラウンド' ? '病棟ラウンド' : '（装置全体）');
+    enqueue({ type: 'photo', date: S.date, user: S.user, location: PT.loc, item_id: PT.id, item_name: name, note: '', data });
     toast('写真を保存しました');
-    if (S.view === 'entry') renderEntry();
+    render();
   } catch (e) { toast(e.message); }
 });
-
-/* ---- 入力画面 ---- */
-function locItems() { return S.data.items.filter(i => i.location === S.loc); }
-function groupsOf(items) {
-  const out = [];
-  items.forEach(i => { const g = out[out.length - 1]; if (g && g.name === i.group) g.items.push(i); else out.push({ name: i.group, items: [i] }); });
-  return out;
-}
-function openEntry(loc) {
-  S.loc = loc; S.note = ''; S.active = null; S.dirty = false; S.draft = {}; S.saved = {};
-  locItems().forEach(i => {
-    if (i.today) {
-      S.draft[i.item_id] = { c: i.today.c || '', v: i.input_type === 'bool' ? i.today.v : (hasVal(i.today.v) ? String(i.today.v) : '') };
-      if (i.today.note) S.note = i.today.note;
-      const r = recOf(i); if (r) S.saved[i.item_id] = serial(r);
-    } else {
-      const dd = defaultDraft(i);   // 点検項目は最初から ✓（異常のときだけ ✗）。使用側は前回と同じ側
-      if (dd) S.draft[i.item_id] = dd;
-    }
-  });
-  S.noteSaved = S.note;
-  S.view = 'entry'; render(); window.scrollTo(0, 0);
-}
-
-/* ボンベ・タンクの「使用側」の欄（名前が「使用側」で始まる選択の欄） */
-const isUseItem = i => i.input_type === 'choice' && i.item_name.indexOf('使用側') === 0;
-/* 残量の欄が左右どちらか：ボンベ「No1 左」「左」／タンク「左1」 */
-function sideOf(i) {
-  if (i.input_type === 'level') return i.sub.charAt(0);
-  if (i.input_type === 'num') { const m = i.sub.match(/^(.*?)\s*(左|右)$/); return m ? m[2] : ''; }
-  return '';
-}
-function sysOf(i) { return i.input_type === 'num' ? (i.sub.match(/^(.*?)\s*(左|右)$/) || ['', ''])[1].trim() : ''; }
-/* その欄の組の、いま選ばれている使用側 */
-function useSideFor(i) {
-  const side = sideOf(i); if (!side) return null;
-  const u = locItems().find(x => isUseItem(x) && x.group === i.group && x.sub === sysOf(i));
-  if (!u) return null;
-  const d = S.draft[u.item_id];
-  return { side, use: d && d.c ? d.c : '' };
-}
-/* 使用側はふだん変わらないので、前回の使用側を最初から選んでおく（「まとめて保存」で登録） */
-function defaultDraft(i) {
-  if (i.input_type === 'bool') return { c: '', v: true };
-  if (isUseItem(i) && i.previous && i.previous.c && i.previous.c !== '交換') return { c: i.previous.c, v: undefined };
-  return null;
-}
-
-/* 本数の変更などで項目が増減したとき：入力中の内容は残し、新しい欄だけ用意する */
-function mergeEntry() {
-  locItems().forEach(i => {
-    if (S.draft[i.item_id]) return;
-    if (i.today) {
-      S.draft[i.item_id] = { c: i.today.c || '', v: i.input_type === 'bool' ? i.today.v : (hasVal(i.today.v) ? String(i.today.v) : '') };
-      const r = recOf(i); if (r) S.saved[i.item_id] = serial(r);
-    } else { const dd = defaultDraft(i); if (dd) S.draft[i.item_id] = dd; }
-  });
-  if (S.active && !locItems().some(i => i.item_id === S.active)) S.active = null;
-  renderEntry();
-}
-
-/* ---- 自動登録 ----
- *  数値：テンキーで「次へ」「完了」や別の欄に移ったとき／✗・選択肢・タンクのレベル：押したとき に1項目ずつ登録
- *  最初から ✓ の項目は、画面下の「まとめて保存」で登録する */
-function recOf(i) {
-  const d = S.draft[i.item_id];
-  if (!isDone(i, d)) return null;
-  if (i.input_type === 'bool') return { item_id: i.item_id, v: d.v };
-  if (i.input_type === 'choice') return { item_id: i.item_id, c: d.c };
-  if (i.input_type === 'num') return { item_id: i.item_id, v: round2(d.v) };
-  if (i.input_type === 'level') return { item_id: i.item_id, v: Number(d.v) };
-  return { item_id: i.item_id, c: d.c || '', v: hasVal(d.v) ? round2(d.v) : '' };
-}
-const serial = r => JSON.stringify([r.c || '', r.v]);
-function unsavedItems() {
-  return locItems().filter(i => { const r = recOf(i); return r && S.saved[i.item_id] !== serial(r); });
-}
-function autosave(ids) {
-  const recs = ids.map(findItem).filter(Boolean).map(recOf).filter(r => r && S.saved[r.item_id] !== serial(r));
-  if (!recs.length) return;
-  enqueue({ type: 'save', date: S.date, user: S.user, location: S.loc, note: S.note, records: recs });
-  recs.forEach(r => { S.saved[r.item_id] = serial(r); });
-}
-/* 数値の欄を確定：末尾の「.」を外し、小数点第2位までにしてから登録 */
-function commitNum(id) {
-  const d = S.draft[id];
-  if (d && hasVal(d.v)) {
-    let v = String(d.v);
-    if (v.endsWith('.')) v = v.slice(0, -1);
-    d.v = v === '' ? '' : String(round2(v));
-  }
-  autosave([id]);
-}
-
-function renderEntry() {
-  const its = locItems();
-  const daily = its.filter(i => i.daily);
-  const n = daily.filter(i => isDone(i, S.draft[i.item_id])).length;
-  const unsaved = unsavedItems().length + (S.note !== S.noteSaved && its.some(i => isDone(i, S.draft[i.item_id])) ? 1 : 0);
-  const pics = photosFor(S.loc);
-  pics.forEach(p => { if (p.file_id && !THUMBS[p.file_id]) loadThumb(p.file_id); });
-  app.className = S.active ? 'with-sheet' : 'with-bar';
-  app.innerHTML = `
-    <div class="entry-head"><button class="back" data-act="leave">‹ 一覧</button><h2>${esc(S.loc)}</h2></div>
-    <p class="sub-head">${fmtJP(S.date)}　${esc(S.user)}　<span class="ghost">数値・✗・選択は入力するとすぐ登録。✓は最初から付いています</span></p>
-    ${groupsOf(its).map((g, gi) => {
-      const unsetBool = g.items.filter(i => i.input_type === 'bool' && !isDone(i, S.draft[i.item_id])).length;
-      const banks = ((S.data && S.data.banks) || []).map((bk, k) => Object.assign({ k }, bk)).filter(bk => bk.location === S.loc && bk.group === g.name);
-      return `<section class="grp"><div class="grp-h"><b>${esc(g.name)}</b>${unsetBool ? `<button data-act="grpok" data-g="${gi}">未入力を ✓（${unsetBool}）</button>` : ''}</div>
-        ${banks.map(bk => `<div class="bankrow"><span>${bk.type === 'タンク' ? '液化酸素タンク' : 'ボンベ'}${bk.sys ? ' ' + esc(bk.sys) : ''}の本数　<b>左右 各</b></span>
-          <div class="stp num"><button data-act="bankStep" data-k="${bk.k}" data-d="-1" aria-label="1本減らす" ${bk.count <= 1 ? 'disabled' : ''}>−</button><span>${bk.count}本</span><button data-act="bankStep" data-k="${bk.k}" data-d="1" aria-label="1本増やす" ${bk.count >= 20 ? 'disabled' : ''}>＋</button></div></div>`).join('')}
-        ${g.items.map(itemRow).join('')}</section>`;
-    }).join('')}
-    <section class="photos">
-      <div class="photos-h"><b>写真</b><button class="addpic" data-act="photo" data-id="">${CAM}写真を追加</button></div>
-      ${pics.length ? `<div class="thumbs">${pics.map(p => `<button class="thumb" data-act="view" data-key="${esc(p.key)}">
-        <img ${p.src ? `src="${p.src}"` : `data-fid="${esc(p.file_id)}" ${THUMBS[p.file_id] && THUMBS[p.file_id] !== 'loading' ? `src="${THUMBS[p.file_id]}"` : ''}`} alt="">
-        ${p.pending ? '<em>未送信</em>' : ''}<span>${esc(p.name)}</span></button>`).join('')}</div>`
-        : '<p class="muted" style="font-size:13px;margin:0">見た目に異常があれば撮影してください。✗ を付けた項目には撮影ボタンが出ます。</p>'}
-    </section>
-    <div class="notebox"><textarea id="f-note" rows="2" placeholder="備考（任意）例：窒素ボンベ交換、吸引装置フィルター交換">${esc(S.note)}</textarea></div>
-    ${S.active ? keypadSheet() : `<div class="savebar">${unsaved
-      ? `<button data-act="save">✓の項目もまとめて保存（未保存 ${unsaved}・入力 ${n}/${daily.length}）</button>`
-      : `<button class="done" data-act="leave">登録済み　一覧へ戻る（${n}/${daily.length}）</button>`}</div>`}`;
-}
-
-function itemRow(i) {
-  const d = S.draft[i.item_id] || {};
-  const p = i.previous;
-  const lvl = levelOf(i, d);
-  const prevTxt = p ? `前回 ${esc(fmtVal(i, p))}${i.input_type === 'num' || i.input_type === 'level' || (i.input_type === 'pair' && hasVal(p.v)) ? esc(i.unit) : ''}（${md(p.date)}）` : '';
-  const r = recOf(i);
-  const savedMark = r && S.saved[i.item_id] === serial(r) ? '<span class="saved">登録済 </span>' : '';
-  const us = useSideFor(i);
-  const useChip = us && us.use ? (us.use === us.side ? '<span class="usechip">使用中</span>' : '<span class="usechip stby">予備</span>') : '';
-  let ctl = '';
-  if (i.input_type === 'bool') {
-    ctl = `<div class="seg">
-      <button class="y ${d.v === true ? 'sel' : (d.v === undefined && p && p.v === true ? 'prev' : '')}" data-act="bool" data-id="${i.item_id}" data-v="1" aria-label="異常なし">✓</button>
-      <button class="n ${d.v === false ? 'sel' : ''}" data-act="bool" data-id="${i.item_id}" data-v="0" aria-label="異常あり">✗</button></div>
-      ${d.v === false ? `<button class="cam" data-act="photo" data-id="${i.item_id}" aria-label="写真を撮る">${CAM}</button>` : ''}`;
-  }
-  if (i.input_type === 'choice' || i.input_type === 'pair') {
-    ctl += `<div class="chips">${i.options.map(o => `<button class="${d.c === o ? 'sel' : (!d.c && p && p.c === o ? 'prev' : '')}" data-act="choice" data-id="${i.item_id}" data-o="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
-  }
-  if (i.input_type === 'level') {
-    ctl = `<div class="chips lv">${LEVELS.map(o => `<button class="${String(d.v) === o ? 'sel' : (!hasVal(d.v) && p && String(p.v) === o ? 'prev' : '')}" data-act="lvl" data-id="${i.item_id}" data-o="${o}" aria-label="${o === '5' ? '5（満タン）' : o}">${o}</button>`).join('')}</div>`;
-  }
-  if (i.input_type === 'num' || i.input_type === 'pair') {
-    const has = hasVal(d.v);
-    const shown = has ? d.v : (p && hasVal(p.v) ? round2(p.v) : '—');
-    ctl += `<button class="vbox num ${has ? '' : 'empty'} ${S.active === i.item_id ? 'act' : ''} ${lvl === 'alert' ? 'alert' : ''}" data-act="field" data-id="${i.item_id}" id="f-${i.item_id}">${esc(shown)}<small>${esc(i.unit)}</small></button>`;
-  }
-  return `<div class="it ${lvl === 'alert' ? 'alert' : ''}" id="r-${i.item_id}">
-    <div class="nm">${esc(label(i))}${useChip}${prevTxt || savedMark ? `<small>${savedMark}${prevTxt}</small>` : ''}</div><div class="ctl">${ctl}</div></div>`;
-}
-
-const findItem = id => S.data.items.find(i => i.item_id === id);
-function numFields() { return locItems().filter(i => i.input_type === 'num' || i.input_type === 'pair'); }
-function nextField(i) { const l = numFields(); return l[l.indexOf(i) + 1] || null; }
-
-function keypadSheet() {
-  const i = findItem(S.active);
-  const d = S.draft[i.item_id] || {};
-  const lvl = levelOf(i, d);
-  let hint = i.low !== null || i.high !== null ? `基準 ${i.low ?? ''}〜${i.high ?? ''} ${i.unit}` : '';
-  if (lvl === 'alert') hint = '基準の範囲外です';
-  const anim = S.sheetAnim; S.sheetAnim = false;
-  return `<div class="sheet ${anim ? 'anim' : ''}"><div class="sheet-in">
-    <div class="sheet-head"><b>${esc(label(i))}<small>${esc(i.group)}${i.previous && hasVal(i.previous.v) ? `　前回 ${i.previous.v}${esc(i.unit)}` : ''}</small></b>
-      <button data-act="clear">C</button>
-      <button data-act="same" ${i.previous && hasVal(i.previous.v) ? '' : 'disabled'}>前回と同じ</button>
-      <button class="go" data-act="nextField">${nextField(i) ? '次へ' : '完了'}</button></div>
-    <div class="readout num ${lvl === 'alert' ? 'alert' : ''}">${hasVal(d.v) ? esc(d.v) : '<span style="color:var(--faint)">0</span>'}<small>${esc(i.unit)}</small></div>
-    <div class="hint ${lvl === 'alert' ? 'alert' : ''}">${esc(hint)}</div>
-    <div class="keypad">${['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '⌫'].map(k =>
-      `<button data-act="key" data-k="${k}" aria-label="${k === '⌫' ? '1文字消す' : k}">${k}</button>`).join('')}</div>
-  </div></div>`;
-}
-function setActive(id) {
-  if (S.active && S.active !== id) commitNum(S.active);
-  S.sheetAnim = !S.active && !!id;
-  S.active = id; renderEntry();
-  if (id) { const el = document.getElementById('r-' + id); if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
-}
-function draftOf(id) { return S.draft[id] || (S.draft[id] = { c: '', v: undefined }); }
-
-/* ---- 残量の推移 ---- */
-function renderTrend() {
-  const sup = S.data ? S.data.supply : [];
-  const tab = S.trendTab || '酸素';
-  const list = sup.filter(s => tab === '酸素' ? s.gas === '酸素' : s.gas !== '酸素');
-  app.innerHTML = `
-    <div class="entry-head"><button class="back" data-act="home">‹ ホーム</button><h2>残量の推移</h2></div>
-    <div class="seg-tabs"><button class="${tab === '酸素' ? 'on' : ''}" data-act="ttab" data-t="酸素">酸素</button><button class="${tab !== '酸素' ? 'on' : ''}" data-act="ttab" data-t="他">窒素・炭酸ガス</button></div>
-    ${list.map(s => `<div class="card">
-      <h3>${esc(s.label)}</h3>
-      <div class="stats num">
-        <div>現在値<b>${s.current === null ? '—' : (s.side ? esc(s.side) + ' ' : '') + s.current}<small style="font-size:12px"> ${esc(s.unit)}</small></b></div>
-        <div>1日の使用量<b>${s.avg === null ? '—' : s.avg}</b></div>
-        <div class="${s.level}">残り日数<b>${dayLeftText(s)}${s.days_left !== null ? '日' : ''}</b></div>
-      </div>
-      ${s.detail ? `<p class="muted num" style="font-size:12.5px;margin:0 0 4px">${s.tank ? '各タンクの目盛' : '左右の残量'}：${esc(s.detail)}${s.bank && !s.capacity_set ? '　※容量が未登録のため「本分」（満タン1本＝1）で表示' : ''}</p>` : ''}
-      <p class="muted" style="font-size:12.5px;margin:0 0 6px">${s.predicted ? `下限 ${s.limit}${esc(s.unit)} に届く見込み：${fmtJP(s.predicted)}` : '2日分以上の記録がたまると予測を表示します'}${s.usage.some(u => u.event) ? '　黄色の点＝交換・補充' : ''}</p>
-      ${lineChart(s)}</div>`).join('') || '<p class="muted">対象の設備がありません</p>'}
-    <p class="muted" style="font-size:12px">残り日数＝（現在値 − 下限）÷ 直近14日の1日平均使用量。交換・補充した日は平均から除いています。下限はスプレッドシートの「マスタ」の limit で変更できます。ボンベ・液化酸素タンクは左右（予備側を含む）すべての残量の合計で計算します。本数・容量・下限は「ボンベ・タンク設定」シートで変更できます（本数は点検画面でも変更できます）。</p>`;
-}
-
-function lineChart(s) {
-  const pts = s.series;
-  if (!pts.length) return '<p class="muted">記録がありません</p>';
-  const W = 340, H = 170, L = 34, R = 10, T = 12, B = 22;
-  const x0 = dayNum(pts[0].d);
-  let x1 = dayNum(pts[pts.length - 1].d);
-  if (s.predicted) x1 = Math.max(x1, dayNum(s.predicted));
-  if (x1 === x0) x1 = x0 + 1;
-  const ymax = Math.max(...pts.map(p => p.v), s.limit || 0) * 1.1 || 1;
-  const sx = d => (L + (dayNum(d) - x0) / (x1 - x0) * (W - L - R)).toFixed(1);
-  const sy = v => (T + (1 - v / ymax) * (H - T - B)).toFixed(1);
-  const ev = new Set(s.usage.filter(u => u.event).map(u => u.d));
-  let g = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(s.label)}の推移">`;
-  [0, ymax / 2, ymax].forEach(v => { g += `<line class="ax" x1="${L}" x2="${W - R}" y1="${sy(v)}" y2="${sy(v)}"/><text x="${L - 4}" y="${+sy(v) + 3}" text-anchor="end">${Math.round(v * 10) / 10}</text>`; });
-  if (s.limit !== null) g += `<line class="th" x1="${L}" x2="${W - R}" y1="${sy(s.limit)}" y2="${sy(s.limit)}"/><text class="thl" x="${W - R}" y="${sy(s.limit) - 4}" text-anchor="end">下限 ${s.limit}</text>`;
-  g += `<polyline class="ln" points="${pts.map(p => sx(p.d) + ',' + sy(p.v)).join(' ')}"/>`;
-  g += pts.map(p => `<circle class="${ev.has(p.d) ? 'ev' : 'pt'}" cx="${sx(p.d)}" cy="${sy(p.v)}" r="${ev.has(p.d) ? 4 : 2.6}"/>`).join('');
-  if (s.predicted && s.limit !== null) { const lp = pts[pts.length - 1]; g += `<line class="fc" x1="${sx(lp.d)}" y1="${sy(lp.v)}" x2="${sx(s.predicted)}" y2="${sy(s.limit)}"/>`; }
-  const endD = s.predicted && dayNum(s.predicted) > dayNum(pts[pts.length - 1].d) ? s.predicted : pts[pts.length - 1].d;
-  g += `<text x="${L}" y="${H - 6}">${fmtJP(pts[0].d)}</text><text x="${W - R}" y="${H - 6}" text-anchor="end">${fmtJP(endD)}</text>`;
-  return g + '</svg>';
-}
-
-/* ---- 月別一覧 ---- */
-const M = { ym: '', loc: '', data: null, error: '' };
-async function openMonth(ym, loc) {
-  M.ym = ym; M.loc = loc || M.loc || locations()[0]; M.data = null; M.error = '';
-  S.view = 'month'; render();
-  try {
-    const d = await call('month', { ym: M.ym, location: M.loc });
-    if (M.ym !== ym || (loc && M.loc !== loc)) return;
-    M.data = d;
-  } catch (e) { M.error = e.server ? e.message : '通信できないため表示できません'; }
-  if (S.view === 'month') { render(); const w = document.getElementById('mwrap'), t = document.getElementById('m-today'); if (w && t) w.scrollLeft = Math.max(0, t.offsetLeft - 128 - 44 * 4); }
-}
-function renderMonth() {
-  const [y, m] = M.ym.split('-').map(Number);
-  const isNow = M.ym === todayStr().slice(0, 7);
-  let body = '<p class="muted">読み込んでいます…</p>';
-  if (M.error) body = `<div class="banner err">${esc(M.error)}</div>`;
-  else if (M.data) {
-    const D = M.data, today = todayStr(), W = '日月火水木金土';
-    let head = '<tr><th class="sl">項目</th>';
-    for (let d = 1; d <= D.days; d++) {
-      const ds = `${M.ym}-${pad(d)}`, wd = new Date(y, m - 1, d).getDay();
-      head += `<th class="${ds === today ? 'td' : wd === 0 ? 'sun' : wd === 6 ? 'sat' : ''}" ${ds === today ? 'id="m-today"' : ''}>${d}<br>${W[wd]}</th>`;
-    }
-    let rows = '';
-    groupsOf(D.items).forEach(g => {
-      rows += `<tr class="gh"><th class="sl">${esc(g.name)}</th><td colspan="${D.days}"></td></tr>`;
-      g.items.forEach(i => {
-        rows += `<tr><th class="sl">${esc(label(i))}${i.unit ? `<span class="muted">(${esc(i.unit)})</span>` : ''}</th>`;
-        for (let d = 1; d <= D.days; d++) {
-          const ds = `${M.ym}-${pad(d)}`;
-          const c = D.cells[i.item_id] && D.cells[i.item_id][d];
-          if (!c) { rows += `<td class="${ds < today && i.daily ? 'miss' : ''}"></td>`; continue; }
-          const dd = { c: c[0], v: c[1] };
-          rows += `<td class="${levelOf(i, dd)}"><button data-act="mcell" data-id="${esc(i.item_id)}" data-d="${d}">${esc(fmtVal(i, dd)).replace(' ', '<br>')}</button></td>`;
-        }
-        rows += '</tr>';
-      });
-    });
-    body = `<div class="mwrap" id="mwrap"><table class="mt"><thead>${head}</tr></thead><tbody>${rows}</tbody></table></div>
-      <p class="legend">赤＝異常・基準外　灰＝未入力　マスをタップで点検者を表示</p>`;
-  }
-  app.innerHTML = `
-    <div class="entry-head"><button class="back" data-act="home">‹ ホーム</button><h2>月別一覧</h2></div>
-    <div class="mbar"><button data-act="mprev" aria-label="前の月">‹</button><div class="d num">${y}年${m}月</div><button data-act="mnext" aria-label="次の月" ${isNow ? 'disabled' : ''}>›</button></div>
-    <div class="filters">${locations().map(l => `<button class="${M.loc === l ? 'on' : ''}" data-act="mloc" data-l="${esc(l)}">${esc(l)}</button>`).join('')}</div>
-    ${body}`;
-}
-
-/* ---- 写真ビューア ---- */
-function viewPhoto(key) {
-  const p = photosFor(S.loc).find(x => x.key === key);
+function viewPhoto(loc, key) {
+  const p = photosFor(loc).find(x => x.key === key);
   if (!p) return;
   const src = p.src || (THUMBS[p.file_id] !== 'loading' && THUMBS[p.file_id]) || '';
   const v = document.createElement('div');
@@ -855,6 +624,281 @@ function viewPhoto(key) {
   v.innerHTML = `<button aria-label="閉じる">×</button>${src ? `<img src="${src}" alt="">` : '<p>読み込み中…</p>'}<p>${esc(p.name)}　${esc(p.user || '')} ${esc(p.time || '')}${p.pending ? '（未送信）' : ''}</p>`;
   v.addEventListener('click', () => v.remove());
   document.body.appendChild(v);
+}
+
+/* ---- 入力画面（1台＝1画面、全項目を並べる） ---- */
+function openEntry(loc) {
+  S.loc = loc; S.note = ''; S.active = null; S.dirty = false; S.draft = {};
+  S.items = S.data.items.filter(i => i.category_id === 'blood_gas' && i.location === loc);
+  S.items.forEach(i => { if (i.today) S.draft[i.item_id] = toDraft(i, i.today.value); });
+  S.view = 'entry'; render(); window.scrollTo(0, 0);
+}
+function toDraft(i, v) { return i.input_type === 'number' ? String(v) : i.input_type === 'date' ? isoToMMDD(v) : v; }
+function draftValue(i) {
+  const d = S.draft[i.item_id];
+  if (d === undefined || d === '') return null;
+  if (i.input_type === 'number') return Number(d);
+  if (i.input_type === 'date') return mmddToISO(d);
+  return d;
+}
+
+/* 「SC期限」「SC残回数」→ SC グループにまとめる */
+function groups(items) {
+  const out = [];
+  items.forEach(i => {
+    const m = i.item_name.match(/^(.*?)(期限|残回数)$/);
+    if (m && i.input_type !== 'boolean') {
+      let g = out.find(x => x.key === m[1]);
+      if (!g) { g = { key: m[1], name: dispName(m[1]), items: [] }; out.push(g); }
+      g.items.push({ i, lab: m[2] });
+    } else out.push({ key: null, items: [{ i, lab: i.item_name }] });
+  });
+  return out;
+}
+
+function renderEntry() {
+  const its = S.items;
+  const n = its.filter(i => draftValue(i) !== null).length;
+  const reqMissing = its.filter(i => i.required && draftValue(i) === null);
+  const hasCount = its.some(i => i.input_type === 'number');
+  const html = groups(its).map(g => g.key !== null
+    ? `<section class="grp"><h3>${esc(g.name)}</h3><div class="tiles">${g.items.map(x => tile(x.i, x.lab)).join('')}</div></section>`
+    : boolRow(g.items[0].i)).join('');
+
+  let saveLabel = `保存する（${n}/${its.length}）`;
+  if (reqMissing.length) saveLabel = `${reqMissing.map(i => i.item_name).join('・')}を入力してください`;
+
+  app.className = S.active ? 'with-sheet' : 'with-bar';
+  app.innerHTML = `
+    <div class="entry-head"><button class="back" data-act="leave">‹ 一覧</button><h2>${esc(S.loc)}<small>${esc(its[0].model)}</small></h2></div>
+    <p class="sub-head">${fmtJP(S.date)}　${esc(S.user)}　<span class="ghost">薄い文字は前回の記録</span></p>
+    ${html}
+    <section class="photos">
+      <div class="photos-h"><b>写真</b><button class="addpic" data-act="photo" data-loc="${esc(S.loc)}" data-id="">${CAM}写真を追加</button></div>
+      ${thumbsHtml(S.loc) || '<p class="muted" style="font-size:13px;margin:0">見た目に異常があれば撮影してください。✗ を付けた項目には撮影ボタンが出ます。</p>'}
+    </section>
+    <div class="notebox"><textarea id="f-note" rows="1" placeholder="メモ（任意）例：SC交換、記録紙補充">${esc(S.note)}</textarea></div>
+    ${hasCount ? '<button class="linkbtn" data-act="chart">残回数の推移を見る ›</button>' : ''}
+    ${S.active ? keypadSheet() : `<div class="savebar"><button data-act="save" ${reqMissing.length || !n ? 'disabled' : ''}>${esc(saveLabel)}</button></div>`}`;
+}
+
+function tile(i, lab) {
+  const raw = S.draft[i.item_id];
+  const v = draftValue(i);
+  const lvl = v !== null ? levelOf(i, v, S.date) : '';
+  const act = S.active === i.item_id;
+  let tv, sub, empty = false;
+  if (raw !== undefined && raw !== '') {
+    if (i.input_type === 'date') {
+      const s = raw.padEnd(4, '_');
+      const p = c => c === '_' ? '<span class="ph">_</span>' : c;
+      tv = `${p(s[0])}${p(s[1])}/${p(s[2])}${p(s[3])}`;
+      sub = v ? daysText(v, S.date) : raw.length === 4 ? '日付が正しくありません' : '';
+    } else {
+      tv = `${esc(raw)}<small>${esc(i.unit)}</small>`;
+      sub = lvl === 'alert' ? '交換してください' : lvl === 'warn' ? '交換の準備を' : (i.previous && v > i.previous.value ? '交換後として記録' : '');
+    }
+  } else if (i.previous) {
+    empty = true;
+    tv = `${esc(fmtShort(i, i.previous.value).replace(i.unit, ''))}<small>${esc(i.unit)}</small>`;
+    sub = `前回 ${md(i.previous.date)}・未入力`;
+  } else {
+    empty = true; tv = '－'; sub = '未入力';
+  }
+  return `<button class="tile ${lvl === 'ok' ? '' : lvl} ${act ? 'act' : ''} ${empty ? 'empty' : ''}" data-act="field" data-id="${esc(i.item_id)}" id="t-${esc(i.item_id)}">
+    <span class="lab">${esc(lab)}</span><span class="tv num">${tv}</span><span class="tsub">${esc(sub)}</span></button>`;
+}
+
+function boolRow(i) {
+  const v = S.draft[i.item_id];
+  const prev = i.previous ? `前回 ${i.previous.value ? '✓' : '✗'}（${md(i.previous.date)}）` : '';
+  return `<div class="brow ${v === true ? 'ok' : v === false ? 'alert' : ''}">
+    <span class="bl">${esc(i.item_name)}${i.required ? '<em>必須</em>' : ''}<small>${v === undefined ? prev : ''}</small></span>
+    <div class="seg">
+      <button class="y ${v === true ? 'sel' : ''}" data-act="bool" data-id="${esc(i.item_id)}" data-v="1">✓ OK</button>
+      <button class="n ${v === false ? 'sel' : ''}" data-act="bool" data-id="${esc(i.item_id)}" data-v="0">✗</button>
+    </div>${v === false ? `<button class="cam" data-act="photo" data-loc="${esc(i.location)}" data-id="${esc(i.item_id)}" aria-label="写真を撮る">${CAM}</button>` : ''}</div>`;
+}
+
+function keypadSheet() {
+  const i = findLocal(S.active);
+  const v = draftValue(i);
+  const lvl = v !== null ? levelOf(i, v, S.date) : '';
+  let hint = '', cls = '';
+  if (i.input_type === 'date') {
+    hint = v ? `${v.slice(0, 4)}年${+v.slice(5, 7)}月${+v.slice(8)}日（${daysText(v, S.date)}）` : '月日を4桁で（例：1125）';
+    cls = v ? lvl : '';
+  } else {
+    hint = lvl === 'alert' ? `残り${i.alert_at}回以下` : lvl === 'warn' ? `残り${i.warn_at}回以下` : '残り回数を入力';
+    cls = lvl === 'ok' ? '' : lvl;
+  }
+  const nextTarget = nextField(i);
+  const title = shortName(i.item_name) + ' ' + (i.item_name.match(/期限$/) ? '期限' : i.item_name.match(/残回数$/) ? '残回数' : '');
+  const anim = S.sheetAnim; S.sheetAnim = false;
+  return `<div class="sheet ${anim ? 'anim' : ''}"><div class="sheet-in">
+    <div class="sheet-head"><b>${esc(title)}</b>
+      <button data-act="same" ${i.previous ? '' : 'disabled'}>前回と同じ</button>
+      <button class="go" data-act="nextField">${nextTarget ? '次へ' : '完了'}</button></div>
+    <div class="hint ${cls}">${esc(hint)}</div>
+    <div class="keypad">${['1', '2', '3', '4', '5', '6', '7', '8', '9', 'C', '0', '⌫'].map(k =>
+      `<button data-act="key" data-k="${k}" aria-label="${k === '⌫' ? '1文字消す' : k === 'C' ? 'クリア' : k}">${k}</button>`).join('')}</div>
+  </div></div>`;
+}
+const findLocal = id => S.items.find(i => i.item_id === id);
+function nextField(i) {
+  const list = S.items.filter(x => x.input_type !== 'boolean');
+  return list[list.indexOf(i) + 1] || null;
+}
+function setActive(id) {
+  S.sheetAnim = !S.active && !!id;
+  S.active = id; renderEntry();
+  if (id) { const el = document.getElementById('t-' + id); if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+}
+
+/* ---- 残回数の推移 ---- */
+async function openChart() {
+  S.note = (document.getElementById('f-note') || {}).value || S.note;
+  S.view = 'chart'; S.chart = null; S.active = null; render(); window.scrollTo(0, 0);
+  const its = S.items.filter(i => i.input_type === 'number');
+  try {
+    const res = await Promise.all(its.map(i => call('history', { item_id: i.item_id, days: 90 })));
+    S.chart = its.map((it, k) => ({ it, pts: res[k].points }));
+  } catch (e) { S.chart = { error: e.server ? e.message : '通信できないため表示できません' }; }
+  if (S.view === 'chart') render();
+}
+
+function renderChart() {
+  let body = '<p class="muted">読み込んでいます…</p>';
+  if (S.chart && S.chart.error) body = `<div class="banner err">${esc(S.chart.error)}</div>`;
+  else if (S.chart) body = S.chart.map(({ it, pts }) => {
+    const f = it.forecast;
+    let info = '2日分以上の記録がたまると予測を表示します';
+    if (f && f.rate_per_day) {
+      info = `1日あたり約${f.rate_per_day}回使用（${md(f.refill_date)} 交換）`;
+      if (f.predicted_date) info += `　残り${it.alert_at}回の見込み ${fmtJP(f.predicted_date)}`;
+    }
+    return `<div class="chartbox"><h3>${esc(dispName(it.item_name))}</h3><p>${info}</p>${lineChart(it, pts)}</div>`;
+  }).join('');
+  app.innerHTML = `
+    <div class="entry-head"><button class="back" data-act="backEntry">‹ 入力に戻る</button><h2>${esc(S.loc)}<small>直近90日</small></h2></div>
+    ${body}`;
+}
+
+function lineChart(it, pts) {
+  if (!pts.length) return '<p class="muted">記録がありません</p>';
+  const W = 340, H = 170, L = 34, R = 10, T = 12, B = 22;
+  const f = it.forecast;
+  const x0 = dayNum(pts[0].d);
+  let x1 = dayNum(pts[pts.length - 1].d);
+  if (f && f.predicted_date) x1 = Math.max(x1, dayNum(f.predicted_date));
+  if (x1 === x0) x1 = x0 + 1;
+  const ymax = Math.max(...pts.map(p => p.v), (it.warn_at || 0) * 2) * 1.08 || 1;
+  const sx = d => (L + (dayNum(d) - x0) / (x1 - x0) * (W - L - R)).toFixed(1);
+  const sy = v => (T + (1 - v / ymax) * (H - T - B)).toFixed(1);
+  let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(it.item_name)}の推移">`;
+  [0, ymax / 2, ymax].forEach(v => {
+    s += `<line class="ax" x1="${L}" x2="${W - R}" y1="${sy(v)}" y2="${sy(v)}"/><text x="${L - 4}" y="${+sy(v) + 3}" text-anchor="end">${Math.round(v)}</text>`;
+  });
+  if (it.warn_at != null) s += `<line class="tw" x1="${L}" x2="${W - R}" y1="${sy(it.warn_at)}" y2="${sy(it.warn_at)}"/>`;
+  if (it.alert_at != null) s += `<line class="th" x1="${L}" x2="${W - R}" y1="${sy(it.alert_at)}" y2="${sy(it.alert_at)}"/><text class="thl" x="${W - R}" y="${sy(it.alert_at) - 4}" text-anchor="end">残り${it.alert_at}回</text>`;
+  s += `<polyline class="ln" points="${pts.map(p => sx(p.d) + ',' + sy(p.v)).join(' ')}"/>`;
+  s += pts.map(p => `<circle class="pt" cx="${sx(p.d)}" cy="${sy(p.v)}" r="2.6"/>`).join('');
+  if (f && f.predicted_date && it.alert_at != null) {
+    const lp = pts[pts.length - 1];
+    s += `<line class="fc" x1="${sx(lp.d)}" y1="${sy(lp.v)}" x2="${sx(f.predicted_date)}" y2="${sy(it.alert_at)}"/>`;
+  }
+  const endD = f && f.predicted_date && dayNum(f.predicted_date) > dayNum(pts[pts.length - 1].d) ? f.predicted_date : pts[pts.length - 1].d;
+  s += `<text x="${L}" y="${H - 6}">${fmtJP(pts[0].d)}</text><text x="${W - R}" y="${H - 6}" text-anchor="end">${fmtJP(endD)}</text>`;
+  return s + '</svg>';
+}
+
+/* ---- 月別一覧 ---- */
+const M = { ym: '', data: null, error: '', filter: 'all' };
+function shiftMonth(ym, n) { const [y, m] = ym.split('-').map(Number); const t = new Date(y, m - 1 + n, 1); return `${t.getFullYear()}-${pad(t.getMonth() + 1)}`; }
+
+async function openMonth(ym) {
+  M.ym = ym; M.data = null; M.error = '';
+  S.view = 'month'; render();
+  try {
+    const d = await call('month', { ym });
+    if (M.ym !== ym) return;
+    M.data = d;
+  } catch (e) { M.error = e.server ? e.message : '通信できないため表示できません'; }
+  if (S.view === 'month') { render(); scrollToToday(); }
+}
+
+/* 未送信の操作も月別一覧に反映 */
+function monthCells() {
+  const cells = JSON.parse(JSON.stringify(M.data.cells));
+  OB.ops.filter(o => o.date.slice(0, 7) === M.ym).forEach(o => {
+    const d = +o.date.slice(8, 10);
+    if (o.type === 'save') o.records.forEach(r => { (cells[r.item_id] || (cells[r.item_id] = {}))[d] = [r.value, o.user]; });
+    else if (cells[o.item_id]) delete cells[o.item_id][d];
+  });
+  return cells;
+}
+
+function renderMonth() {
+  const [y, m] = M.ym.split('-').map(Number);
+  const isNow = M.ym === todayStr().slice(0, 7);
+  let body = '<p class="muted">読み込んでいます…</p>';
+  if (M.error) body = `<div class="banner err">${esc(M.error)}</div>`;
+  else if (M.data) {
+    const D = M.data, cells = monthCells(), today = todayStr();
+    // 場所ごとにまとめる（病棟ラウンドは1グループ）
+    const grpMap = new Map();
+    D.items.forEach(i => {
+      const key = i.category_id === 'ward_round' ? '病棟ラウンド' : i.location;
+      if (!grpMap.has(key)) grpMap.set(key, { key, model: i.category_id === 'ward_round' ? '' : i.model, items: [] });
+      grpMap.get(key).items.push(i);
+    });
+    const grps = [...grpMap.values()];
+    if (!grps.some(g => g.key === M.filter)) M.filter = 'all';
+    const shown = M.filter === 'all' ? grps : grps.filter(g => g.key === M.filter);
+    const filters = `<div class="filters">${[['all', 'すべて'], ...grps.map(g => [g.key, g.key])].map(([k, l]) =>
+      `<button class="${M.filter === k ? 'on' : ''}" data-act="mfilter" data-k="${esc(k)}">${esc(l)}</button>`).join('')}</div>`;
+
+    const W = '日月火水木金土';
+    let head = '<tr><th class="sl">項目</th>';
+    for (let d = 1; d <= D.days; d++) {
+      const ds = `${M.ym}-${pad(d)}`, wd = new Date(y, m - 1, d).getDay();
+      head += `<th class="${ds === today ? 'td' : wd === 0 ? 'sun' : wd === 6 ? 'sat' : ''}" ${ds === today ? 'id="m-today"' : ''}>${d}<br>${W[wd]}</th>`;
+    }
+    head += '</tr>';
+
+    let rows = '';
+    shown.forEach(g => {
+      rows += `<tr class="gh"><th class="sl">${esc(g.key)}${g.model ? `<small>${esc(g.model)}</small>` : ''}</th><td colspan="${D.days}"></td></tr>`;
+      g.items.forEach(i => {
+        const label = i.category_id === 'ward_round' ? i.location : dispName(i.item_name);
+        rows += `<tr><th class="sl">${esc(label)}</th>`;
+        for (let d = 1; d <= D.days; d++) {
+          const ds = `${M.ym}-${pad(d)}`;
+          const c = cells[i.item_id] && cells[i.item_id][d];
+          const tdc = ds === today ? ' tdc' : '';
+          if (!c) { rows += `<td class="${ds < today ? 'miss' : ''}${tdc}"></td>`; continue; }
+          const lvl = levelOf(i, c[0], ds);
+          rows += `<td class="${lvl}${tdc}"><button data-act="mcell" data-id="${esc(i.item_id)}" data-d="${d}">${esc(fmtShort(i, c[0]).replace(i.unit, ''))}</button></td>`;
+        }
+        rows += '</tr>';
+      });
+    });
+    body = `${filters}<div class="mwrap" id="mwrap"><table class="mt"><thead>${head}</thead><tbody>${rows}</tbody></table></div>
+      <div class="legend"><span><i style="background:var(--warn-bg)"></i>注意</span><span><i style="background:var(--alert-bg)"></i>交換・要対応</span><span><i style="background:var(--empty)"></i>未入力</span><span>マスをタップで入力者を表示</span></div>`;
+  }
+  app.innerHTML = `
+    <div class="entry-head"><button class="back" data-act="home">‹ ホーム</button><h2>月別一覧</h2></div>
+    <div class="mbar">
+      <button data-act="mprev" aria-label="前の月">‹</button>
+      <div class="d num">${y}年${m}月</div>
+      <button data-act="mnext" aria-label="次の月" ${isNow ? 'disabled' : ''}>›</button>
+    </div>
+    ${body}`;
+}
+
+function scrollToToday() {
+  const w = document.getElementById('mwrap'), t = document.getElementById('m-today');
+  if (w && t) w.scrollLeft = Math.max(0, t.offsetLeft - 118 - 42 * 4);
 }
 
 /* =================== 操作 =================== */
@@ -869,108 +913,100 @@ document.addEventListener('click', ev => {
     S.apiUrl = u; store.set('apiUrl', u); S.view = 'who'; load();
   }
   else if (act === 'who') { S.view = 'who'; render(); }
-  else if (act === 'pickUser') { S.user = b.dataset.name; S.lastUser = S.user; store.set('lastUser', S.user); S.view = 'home'; render(); }
-  else if (act === 'theme') { theme = theme === 'auto' ? 'light' : theme === 'light' ? 'dark' : 'auto'; store.set('theme', theme); applyTheme(); toast('表示：' + THEMES[theme][1]); }
+  else if (act === 'photo') {
+    const n = document.getElementById('f-note'); if (n) S.note = n.value;
+    PT.loc = b.dataset.loc; PT.id = b.dataset.id || '';
+    document.getElementById('photoInput').click();
+  }
+  else if (act === 'view') viewPhoto(b.dataset.loc, b.dataset.key);
   else if (act === 'home') { S.view = 'home'; render(); window.scrollTo(0, 0); load(true); }
+  else if (act === 'theme') {
+    theme = theme === 'auto' ? 'light' : theme === 'light' ? 'dark' : 'auto';
+    store.set('theme', theme); applyTheme(); toast('表示：' + THEMES[theme][1]);
+  }
+  else if (act === 'month') openMonth(S.date.slice(0, 7));
+  else if (act === 'mprev') openMonth(shiftMonth(M.ym, -1));
+  else if (act === 'mnext') openMonth(shiftMonth(M.ym, 1));
+  else if (act === 'mfilter') { M.filter = b.dataset.k; render(); scrollToToday(); }
+  else if (act === 'mcell') {
+    const i = M.data.items.find(x => x.item_id === b.dataset.id);
+    const c = monthCells()[i.item_id][+b.dataset.d];
+    const label = i.category_id === 'ward_round' ? `病棟ラウンド ${i.location}` : `${i.location} ${dispName(i.item_name)}`;
+    toast(`${+M.ym.slice(5)}/${b.dataset.d} ${label}：${fmtShort(i, c[0])}（${c[1] || '不明'}）`);
+  }
+  else if (act === 'pickUser') {
+    S.user = b.dataset.name; S.lastUser = S.user; store.set('lastUser', S.user);
+    S.view = 'home'; render();
+  }
   else if (act === 'prevDay' || act === 'nextDay') {
     S.date = shiftDate(S.date, act === 'prevDay' ? -1 : 1);
     S.data = fromCache(); if (S.data) OB.ops.forEach(applyOp);
     render(); load(true);
   }
-  else if (act === 'trend') { S.view = 'trend'; render(); window.scrollTo(0, 0); }
-  else if (act === 'ttab') { S.trendTab = b.dataset.t; render(); }
-  else if (act === 'month') openMonth(S.date.slice(0, 7));
-  else if (act === 'mprev') openMonth(shiftMonth(M.ym, -1));
-  else if (act === 'mnext') openMonth(shiftMonth(M.ym, 1));
-  else if (act === 'mloc') openMonth(M.ym, b.dataset.l);
-  else if (act === 'mcell') {
-    const i = M.data.items.find(x => x.item_id === b.dataset.id);
-    const c = M.data.cells[i.item_id][+b.dataset.d];
-    toast(`${+M.ym.slice(5)}/${b.dataset.d} ${i.group} ${label(i)}：${fmtVal(i, { c: c[0], v: c[1] })}${hasVal(c[1]) && i.unit ? i.unit : ''}（${c[2] || '不明'}）`);
+
+  /* 病棟ラウンド：押した瞬間に切り替え、通信は裏で */
+  else if (act === 'ward') {
+    const it = findItem(b.dataset.id);
+    const date = S.date, user = S.user, id = it.item_id;
+    const doneOp = () => ({ type: 'save', date, user, note: '', records: [{ item_id: id, value: true }] });
+    if (it.today) {
+      const by = it.today.user;
+      if (by && by !== user && !confirm(`${by} さんの記録です。取り消しますか？`)) return;
+      enqueue({ type: 'delete', date, item_id: id }); render();
+      toast(`${it.location} を未実施に戻しました`, () => { enqueue(doneOp()); render(); });
+    } else {
+      enqueue(doneOp()); render();
+      toast(`${it.location} 完了`, () => { enqueue({ type: 'delete', date, item_id: id }); render(); });
+    }
   }
 
   else if (act === 'entry') openEntry(b.dataset.loc);
   else if (act === 'leave') {
-    if (S.active) { commitNum(S.active); S.active = null; }
-    const u = unsavedItems().length;
-    if (u && !confirm(`まだ保存していない項目が ${u} 件あります（最初から ✓ の項目など）。保存せずに一覧へ戻りますか？`)) { renderEntry(); return; }
-    S.view = 'home'; render(); window.scrollTo(0, 0);
-  }
-  else if (act === 'bool') {
-    if (S.active) { commitNum(S.active); S.active = null; }
-    draftOf(b.dataset.id).v = b.dataset.v === '1'; S.dirty = true;
-    if (b.dataset.v === '0' || S.saved[b.dataset.id] !== undefined) autosave([b.dataset.id]);   // ✗ は押した時点で登録（✓ に戻したときも登録し直す）
-    renderEntry();
-  }
-  else if (act === 'bankStep') {
-    const bk = S.data.banks[+b.dataset.k];
-    const n = Math.max(1, Math.min(20, bk.count + Number(b.dataset.d)));
-    if (n === bk.count) return;
-    if (bk.type === 'タンク' && n < bk.count && !confirm(`${bk.location} の液化酸素タンクを左右各${n}本にします。減らしたタンクの入力欄は表示されなくなります（記録は残ります）。よろしいですか？`)) return;
-    bk.count = n;
-    enqueue({ type: 'bank', date: S.date, user: S.user, location: bk.location, group: bk.group, sys: bk.sys, count: n });
-    toast(`本数を左右各${n}本にしました${bk.type === 'タンク' ? '。入力欄を更新しています…' : ''}`);
-    renderEntry();
-  }
-  else if (act === 'lvl') {
-    if (S.active) { commitNum(S.active); S.active = null; }
-    draftOf(b.dataset.id).v = b.dataset.o; S.dirty = true;
-    autosave([b.dataset.id]); renderEntry();
-  }
-  else if (act === 'choice') {
-    const i = findItem(b.dataset.id), d = draftOf(i.item_id);
-    d.c = d.c === b.dataset.o ? '' : b.dataset.o; S.dirty = true;
-    autosave([i.item_id]);
-    // 残量など数値もある項目は、続けてテンキーを開く
-    if (i.input_type === 'pair' && d.c && !hasVal(d.v)) setActive(i.item_id); else renderEntry();
-  }
-  else if (act === 'grpok') {
-    const g = groupsOf(locItems())[+b.dataset.g];
-    g.items.forEach(i => { if (i.input_type === 'bool' && !isDone(i, S.draft[i.item_id])) draftOf(i.item_id).v = true; });
-    S.dirty = true; renderEntry();
+    if (S.dirty && !confirm('保存せずに一覧へ戻りますか？')) return;
+    S.view = 'home'; S.active = null; render();
   }
   else if (act === 'field') setActive(S.active === b.dataset.id ? null : b.dataset.id);
+  else if (act === 'bool') {
+    S.draft[b.dataset.id] = b.dataset.v === '1'; S.dirty = true; S.active = null; renderEntry();
+  }
   else if (act === 'key') {
-    const d = draftOf(S.active);
-    let v = hasVal(d.v) ? String(d.v) : '';
+    const i = findLocal(S.active);
+    let v = S.draft[i.item_id] ?? '';
     const k = b.dataset.k;
+    const maxLen = i.input_type === 'date' ? 4 : 5;
     if (k === '⌫') v = v.slice(0, -1);
-    else if (k === '.') { if (!v.includes('.')) v = (v || '0') + '.'; }
-    else if ((v.split('.')[1] || '').length >= 2) { /* 小数は第2位まで */ }
-    else if (v.length < 8) v = (v === '0' ? '' : v) + k;
-    d.v = v; S.dirty = true; renderEntry();
+    else if (k === 'C') v = '';
+    else if (v.length < maxLen) v = (i.input_type === 'number' && v === '0' ? '' : v) + k;
+    S.draft[i.item_id] = v; S.dirty = true;
+    // 期限は4桁そろって正しい日付なら自動で次へ
+    if (i.input_type === 'date' && v.length === 4 && mmddToISO(v)) { const nx = nextField(i); setActive(nx ? nx.item_id : null); }
+    else renderEntry();
   }
-  else if (act === 'clear') { draftOf(S.active).v = ''; renderEntry(); }
   else if (act === 'same') {
-    const i = findItem(S.active), d = draftOf(i.item_id);
-    d.v = String(i.previous.v);
-    if (i.input_type === 'pair' && !d.c && i.previous.c) d.c = i.previous.c;
-    S.dirty = true; const nx = nextField(i); setActive(nx ? nx.item_id : null);
+    const i = findLocal(S.active);
+    S.draft[i.item_id] = toDraft(i, i.previous.value); S.dirty = true;
+    const nx = nextField(i); setActive(nx ? nx.item_id : null);
   }
-  else if (act === 'nextField') { const nx = nextField(findItem(S.active)); setActive(nx ? nx.item_id : null); }
-  else if (act === 'photo') {
-    S.note = (document.getElementById('f-note') || {}).value ?? S.note;
-    S.photoTarget = b.dataset.id || '';
-    document.getElementById('photoInput').click();
+  else if (act === 'nextField') {
+    const nx = nextField(findLocal(S.active)); setActive(nx ? nx.item_id : null);
   }
-  else if (act === 'view') viewPhoto(b.dataset.key);
+  else if (act === 'chart') openChart();
+  else if (act === 'backEntry') { S.view = 'entry'; render(); }
+
+  /* 保存：即座に一覧へ戻り、送信は裏で */
   else if (act === 'save') {
-    if (S.active) { commitNum(S.active); S.active = null; }
     const note = document.getElementById('f-note').value.trim();
-    S.note = note;
-    // 備考を書き換えたときは、入力済みの全項目に備考を付け直す
-    const targets = note !== S.noteSaved ? locItems().filter(i => isDone(i, S.draft[i.item_id])) : unsavedItems();
-    const records = targets.map(recOf).filter(Boolean);
-    if (records.length) enqueue({ type: 'save', date: S.date, user: S.user, location: S.loc, note, records });
-    records.forEach(r => { S.saved[r.item_id] = serial(r); });
-    S.noteSaved = note;
+    const records = S.items.filter(i => draftValue(i) !== null).map(i => ({ item_id: i.item_id, value: draftValue(i) }));
+    enqueue({ type: 'save', date: S.date, user: S.user, note, records });
     const loc = S.loc;
     S.view = 'home'; S.active = null; S.dirty = false; render(); window.scrollTo(0, 0);
     toast(`${loc} を保存しました`);
   }
 });
+
 document.addEventListener('input', ev => { if (ev.target.id === 'f-note') { S.note = ev.target.value; S.dirty = true; } });
 
+/* 日付をまたいで開き直したら今日に戻す / 通信が戻ったら再送 */
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState !== 'visible') return;
   kick(0);
@@ -981,8 +1017,12 @@ document.addEventListener('visibilitychange', () => {
 window.addEventListener('online', () => kick(0));
 window.addEventListener('offline', updateSync);
 
+/* 起動：キャッシュで即表示 → 裏で最新を取得。毎回、点検者の選択から */
 if (!IS_GAS && !S.apiUrl) { S.view = 'url'; render(); }
-else { S.data = fromCache(); if (S.data) OB.ops.forEach(applyOp); S.view = 'who'; render(); load(true); kick(0); }
+else {
+  S.data = fromCache(); if (S.data) OB.ops.forEach(applyOp);
+  S.view = 'who'; render(); load(true); kick(0);
+}
 
 /* =========================================================
  * テンキーの反応を良くする（2026/11）
