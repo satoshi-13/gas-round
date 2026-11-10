@@ -126,6 +126,8 @@ h2{font-size:14px;margin:16px 2px 6px;color:var(--muted);font-weight:600}
 .grp.open .grp-t .gc{transform:rotate(90deg)}
 .grp.bad{border-color:var(--alert)}
 .grp.closed{margin-bottom:8px}
+.subh{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:var(--accent);padding:8px 12px 6px;border-top:2px solid var(--line);background:var(--bg)}
+.subh:first-child{border-top:0}
 .tankhint{font-size:12px;color:var(--muted);padding:4px 12px 6px;background:var(--accent-soft);border-top:1px solid var(--line)}
 .grp-h button{font-size:13px;font-weight:700;color:var(--accent);background:var(--surface);border:1px solid var(--line);border-radius:99px;padding:4px 11px}
 .bankrow{display:flex;align-items:center;gap:8px;padding:6px 12px;background:var(--accent-soft);border-top:1px solid var(--line);font-size:13px;color:var(--muted);flex-wrap:wrap}
@@ -630,7 +632,33 @@ document.getElementById('photoInput').addEventListener('change', async ev => {
 });
 
 /* ---- 入力画面 ---- */
-function locItems() { return S.data.items.filter(i => i.location === S.loc); }
+/* 区分の中の項目を No1・No2 … ごとにまとめる（例：A棟 予備酸素 → No1 の送気圧力・使用側・ボンベ残量・センサー → No2 … → 共通）
+ *  「No」の付いた項目が2種類以上ある区分だけ（稼働時間 No1/No2 だけの区分などはそのまま） */
+const noOf = i => (String(i.sub || '').match(/^No\s*(\d+)/) || [])[1] || '';
+/* No ごとにまとめず、最後に No1・No2 … の順で並べる項目 */
+const NO_LAST = ['酸素濃度センサー'];
+const isLast = i => NO_LAST.includes(i.item_name);
+function splitByNo(items) {
+  const kinds = new Set(items.filter(i => noOf(i) && !isLast(i)).map(i => i.item_name));
+  if (kinds.size < 2) return null;
+  const nos = [];
+  items.forEach(i => { const n = noOf(i); if (n && !isLast(i) && !nos.includes(n)) nos.push(n); });
+  const secs = nos.map(n => ({ label: 'No' + n, sys: 'No' + n, items: items.filter(i => noOf(i) === n && !isLast(i)) }));
+  const common = items.filter(i => !noOf(i) && !isLast(i));
+  if (common.length) secs.push({ label: '共通', sys: '', items: common });
+  NO_LAST.forEach(name => {
+    const last = items.filter(i => i.item_name === name)
+      .sort((a, b) => (Number(noOf(a)) || 0) - (Number(noOf(b)) || 0));
+    if (last.length) secs.push({ label: name, sys: '-', items: last });
+  });
+  return secs;
+}
+function locItems() {
+  const raw = S.data.items.filter(i => i.location === S.loc);
+  const out = [];
+  groupsOf(raw).forEach(g => { const sec = splitByNo(g.items); (sec ? sec.flatMap(x => x.items) : g.items).forEach(i => out.push(i)); });
+  return out;   // 画面の並び＝テンキーの「次へ」の順
+}
 function groupsOf(items) {
   const out = [];
   items.forEach(i => { const g = out[out.length - 1]; if (g && g.name === i.group) g.items.push(i); else out.push({ name: i.group, items: [i] }); });
@@ -756,10 +784,14 @@ function renderEntry() {
       return `<section class="grp ${open ? 'open' : 'closed'} ${bad ? 'bad' : ''}" id="g-${gi}"><div class="grp-h">
           <button class="grp-t" data-act="gtoggle" data-g="${gi}" aria-expanded="${open}"><span class="gc" aria-hidden="true">›</span><b>${esc(g.name)}</b><span class="gs">${st}${st2}</span></button>
           ${unsetBool ? `<button data-act="grpok" data-g="${gi}">未入力を ✓（${unsetBool}）</button>` : ''}</div>
-        ${open ? `${banks.map(bk => `<div class="bankrow"><span>${bk.type === 'タンク' ? '液化酸素タンク' : 'ボンベ'}${bk.sys ? ' ' + esc(bk.sys) : ''}の本数　<b>左右 各</b></span>
-          <div class="stp num"><button data-act="bankStep" data-k="${bk.k}" data-d="-1" aria-label="1本減らす" ${bk.count <= 1 ? 'disabled' : ''}>−</button><span>${bk.count}本</span><button data-act="bankStep" data-k="${bk.k}" data-d="1" aria-label="1本増やす" ${bk.count >= 20 ? 'disabled' : ''}>＋</button></div></div>`).join('')}
+        ${open ? `${splitByNo(g.items) ? banks.filter(bk => !/^No\d/.test(bk.sys)).map(bankRowHtml).join('') : banks.map(bankRowHtml).join('')}
         ${hasTank ? '<div class="tankhint">液化酸素タンクは左・右に1つずつ、目盛（0〜5）を小数で入力します。その側のタンクはすべて同じ残量として記録します。</div>' : ''}
-        ${g.items.map(itemRow).join('')}` : ''}</section>`;
+        ${(() => {
+          const secs = splitByNo(g.items);
+          if (!secs) return g.items.map(itemRow).join('');
+          return secs.map(sec => `<div class="subh">${esc(g.name)}　${esc(sec.label)}</div>` +
+            banks.filter(bk => bk.sys === sec.sys).map(bankRowHtml).join('') + sec.items.map(itemRow).join('')).join('');
+        })()}` : ''}</section>`;
     }).join('')}
     <section class="photos">
       <div class="photos-h"><b>写真</b><button class="addpic" data-act="photo" data-id="">${CAM}写真を追加</button></div>
@@ -778,6 +810,10 @@ function renderEntry() {
   S.sheetAnimEnd = setTimeout(keepActiveVisible, 200);
 }
 
+function bankRowHtml(bk) {
+  return `<div class="bankrow"><span>${bk.type === 'タンク' ? '液化酸素タンク' : 'ボンベ'}${bk.sys ? ' ' + esc(bk.sys) : ''}の本数　<b>左右 各</b></span>
+    <div class="stp num"><button data-act="bankStep" data-k="${bk.k}" data-d="-1" aria-label="1本減らす" ${bk.count <= 1 ? 'disabled' : ''}>−</button><span>${bk.count}本</span><button data-act="bankStep" data-k="${bk.k}" data-d="1" aria-label="1本増やす" ${bk.count >= 20 ? 'disabled' : ''}>＋</button></div></div>`;
+}
 function itemRow(i) {
   const d = S.draft[i.item_id] || {};
   const p = i.previous;
