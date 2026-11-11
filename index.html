@@ -90,6 +90,23 @@ h2{font-size:14px;margin:16px 2px 6px;color:var(--muted);font-weight:600}
 .orow .days{font-size:22px;font-weight:800;text-align:right;min-width:74px}
 .orow .days small{font-size:12px;font-weight:600;margin-left:2px}
 .orow .when{font-size:12px;color:var(--muted);text-align:right;min-width:64px}
+/* 施設ごとの合計 */
+.fac{padding:8px 0;border-top:1px solid var(--line)}
+.fac:first-of-type{border-top:0}
+.fac-h{display:flex;align-items:baseline;gap:8px}
+.fac-h b{font-size:15px;flex:1}
+.fac-h .fd{font-size:20px;font-weight:800}
+.fac-h .fd{white-space:nowrap}
+.fac .fac-h .fd small{display:inline;font-size:12px;margin-left:2px;color:inherit}
+.fac-h .fd.ok{color:var(--ok)} .fac-h .fd.warn{color:var(--warn)} .fac-h .fd.alert{color:var(--alert)}
+.fbar{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--empty);margin:5px 0 3px}
+.fbar i{display:block;height:100%}
+.fbar .u{background:#24456b} .fbar .s{background:#8fb3dd} .fbar .r{background:#e0a030}
+:root[data-theme="dark"] .fbar .u{background:#7fb2e8} :root[data-theme="dark"] .fbar .s{background:#3d5f86}
+.fac small{display:block;font-size:12px;color:var(--muted)}
+.fac .miss{color:var(--warn)}
+.flegend{display:flex;gap:12px;font-size:11.5px;color:var(--muted);margin:2px 0 4px}
+.flegend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
 .orow.two{grid-template-columns:1fr auto auto}
 .dd{display:flex;flex-direction:column;align-items:flex-end;min-width:78px;padding:2px 6px;border-radius:10px}
 .dd small{font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap}
@@ -581,10 +598,32 @@ function renderHome() {
         <span class="days num">${dayLeftText(s)}<small>日</small></span>
         <span class="when num">${s.predicted ? md(s.predicted) + ' 頃' : 'データ不足'}</span></div>`).join('')}
     </div>` : ''}
+    ${facilitiesCard()}
     <h2>点検する場所</h2>
     <div class="list">${locations().map(locRow).join('')}</div>`}`;
 }
 
+/* 施設ごとの酸素（いつも使っている酸素＋予備酸素の合計、L） */
+function facilitiesCard() {
+  const fs = (S.data && S.data.facilities) || [];
+  if (!fs.length) return '';
+  const n = v => Math.round(v).toLocaleString('ja-JP');
+  const big = v => v >= 10000 ? `${(Math.round(v / 1000)).toLocaleString('ja-JP')}千L` : `${n(v)}L`;
+  return `<div class="oxy">
+    <div class="oxy-h"><b>施設ごとの酸素（予備を含む合計）</b></div>
+    <div class="flegend"><span><i style="background:#24456b"></i>使用中</span><span><i style="background:#8fb3dd"></i>待機中</span><span><i style="background:#e0a030"></i>予備酸素</span></div>
+    ${fs.map(f => {
+      const t = f.total_l || 1, w = v => (v / t * 100).toFixed(1) + '%';
+      const days = f.days_total === null ? '—' : f.days_total >= 100 ? '100+' : f.days_total;
+      return `<div class="fac">
+        <div class="fac-h"><b>${esc(f.name)}</b><span class="num" style="font-size:13px;color:var(--muted)">${big(f.total_l)}</span><span class="fd num ${f.level}">${days}<small>日</small></span></div>
+        <div class="fbar"><i class="u" style="width:${w(f.use_l)}"></i><i class="s" style="width:${w(f.stby_l)}"></i><i class="r" style="width:${w(f.reserve_l)}"></i></div>
+        <small class="num">使用中 ${n(f.use_l)}${f.stby_l ? `・待機 ${n(f.stby_l)}` : ''}${f.reserve_l ? `・予備 ${n(f.reserve_l)}` : ''} L${f.daily_l ? `　1日 ${n(f.daily_l)}L` : ''}${f.days_main !== null && f.reserve_l ? `　予備なしで ${f.days_main >= 100 ? '100+' : f.days_main}日` : ''}</small>
+        ${f.missing.length ? `<small class="miss">容量未登録のため合計に入っていません：${esc(f.missing.join('、'))}</small>` : ''}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
 function locRow(loc) {
   const its = S.data.items.filter(i => i.location === loc);
   const daily = its.filter(i => i.daily);
