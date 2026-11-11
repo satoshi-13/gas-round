@@ -113,8 +113,11 @@ h2{font-size:14px;margin:16px 2px 6px;color:var(--muted);font-weight:600}
 .entry-head h2{margin:0;flex:1;text-align:right;color:var(--ink);font-size:21px}
 .sub-head{font-size:13px;color:var(--muted);margin:2px 0 10px}
 .sub-head .ghost{color:var(--faint)}
-.grp{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden}
-.grp-h{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;background:var(--accent-soft)}
+.grp{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:10px}
+.grp-h{display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;background:var(--accent-soft);border-radius:13px}
+/* 開いている区分の見出しは画面の上に固定（下までスクロールしても、そこから閉じられる） */
+.grp.open .grp-h{position:sticky;top:var(--toph, 54px);z-index:4;border-radius:13px 13px 0 0;border-bottom:1px solid var(--line);box-shadow:0 4px 10px rgba(10,30,50,.08)}
+.grp.open > :last-child:not(.grp-h){border-radius:0 0 13px 13px}
 .grp-h b{flex:1;font-size:15px}
 .grp-t{flex:1;min-width:0;display:flex;align-items:center;gap:8px;min-height:48px;padding:4px 8px;text-align:left;border-radius:10px}
 .grp-t b{font-size:16px;flex:none}
@@ -665,7 +668,7 @@ function groupsOf(items) {
   return out;
 }
 function openEntry(loc) {
-  S.loc = loc; S.note = ''; S.active = null; S.dirty = false; S.draft = {}; S.saved = {}; S.open = new Set();
+  S.loc = loc; S.note = ''; S.active = null; S.dirty = false; S.draft = {}; S.saved = {}; S.open = new Set(); S.opened = new Set();
   locItems().forEach(i => {
     if (i.today) {
       S.draft[i.item_id] = { c: i.today.c || '', v: i.input_type === 'bool' ? i.today.v : (hasVal(i.today.v) ? String(i.today.v) : '') };
@@ -739,6 +742,34 @@ function autosave(ids) {
   enqueue({ type: 'save', date: S.date, user: S.user, location: S.loc, note: S.note, records: recs });
   recs.forEach(r => { S.saved[r.item_id] = serial(r); });
 }
+/* ---- 保存ボタンなしで登録する（v3.5）----
+ *  ・✓／✗・選択・数値：入力した時点で登録
+ *  ・最初から付いている ✓（と前回と同じ使用側）：その区分を開いて点検し、閉じたとき／一覧へ戻ったときに登録
+ *    （開いていない区分は点検していないので登録しない）
+ *  ・備考：書き終えて欄から離れたとき（または一覧へ戻ったとき）に登録 */
+function flushGroup(gi) {
+  const g = groupsOf(locItems())[gi]; if (!g) return;
+  autosave(g.items.map(i => i.item_id));
+}
+function flushOpened() { [...(S.opened || [])].forEach(flushGroup); }
+function saveNoteIfChanged() {
+  const el = document.getElementById('f-note'); if (el) S.note = el.value;
+  const note = String(S.note || '').trim();
+  if (note === (S.noteSaved || '').trim()) return false;
+  // 備考を書き換えたときは、登録済みの全項目に備考を付け直す（備考だけでも「メモ」シートに残る）
+  const records = locItems().filter(i => S.saved[i.item_id] !== undefined).map(recOf).filter(Boolean);
+  enqueue({ type: 'save', date: S.date, user: S.user, location: S.loc, note, records });
+  S.noteSaved = note;
+  return true;
+}
+function leaveEntry() {
+  if (S.active) { commitNum(S.active); S.active = null; }
+  flushOpened();
+  const noted = saveNoteIfChanged();
+  const loc = S.loc;
+  S.view = 'home'; S.dirty = false; render(); window.scrollTo(0, 0);
+  if (noted) toast(`${loc} の備考を登録しました`);
+}
 /* 数値の欄を確定：末尾の「.」を外し、小数点第2位までにしてから登録 */
 function commitNum(id) {
   const d = S.draft[id];
@@ -762,13 +793,14 @@ function renderEntry() {
   const its = locItems();
   const daily = its.filter(i => i.daily);
   const n = daily.filter(i => isDone(i, S.draft[i.item_id])).length;
-  const unsaved = unsavedItems().length + (S.note.trim() !== (S.noteSaved || '').trim() ? 1 : 0);
+  const reg = daily.filter(i => S.saved[i.item_id] !== undefined).length;   // 登録済みの数
+  document.documentElement.style.setProperty('--toph', document.querySelector('.top').offsetHeight + 'px');
   const pics = photosFor(S.loc);
   pics.forEach(p => { if (p.file_id && !THUMBS[p.file_id]) loadThumb(p.file_id); });
   app.className = S.active ? 'with-sheet' : 'with-bar';
   app.innerHTML = `
     <div class="entry-head"><button class="back" data-act="leave">‹ 一覧</button><h2>${esc(S.loc)}</h2></div>
-    <p class="sub-head">${fmtJP(S.date)}　${esc(S.user)}　<span class="ghost">数値・✗・選択は入力するとすぐ登録。✓は最初から付いています</span></p>
+    <p class="sub-head">${fmtJP(S.date)}　${esc(S.user)}　<span class="ghost">入力するとすぐ登録。最初から付いている ✓ は、区分を閉じたとき（一覧へ戻ったとき）に登録</span></p>
     ${groupsOf(its).map((g, gi) => {
       const unsetBool = g.items.filter(i => i.input_type === 'bool' && !isDone(i, S.draft[i.item_id])).length;
       const banks = ((S.data && S.data.banks) || []).map((bk, k) => Object.assign({ k }, bk)).filter(bk => bk.location === S.loc && bk.group === g.name);
@@ -778,8 +810,11 @@ function renderEntry() {
       const bad = g.items.filter(i => levelOf(i, S.draft[i.item_id] || {}) === 'alert').length;
       const nums = g.items.filter(i => (i.input_type === 'num' || i.input_type === 'pair' || i.input_type === 'level') && i.daily && !isDone(i, S.draft[i.item_id])).length;
       const st = bad ? `<span class="chip bad">異常 ${bad}</span>` : '';
-      const st2 = done === need.length ? '<span class="chip done">済</span>'
-        : `<span class="chip ${done ? 'part' : ''}">${nums ? `数値 未入力 ${nums}` : `未入力 ${need.length - done}`}</span>`;
+      const regN = need.filter(i => S.saved[i.item_id] !== undefined).length;
+      const st2 = regN === need.length ? '<span class="chip done">済</span>'
+        : !S.opened.has(gi) && regN === 0 ? '<span class="chip">未点検</span>'
+        : nums ? `<span class="chip part">数値 未入力 ${nums}</span>`
+        : open ? `<span class="chip part">点検中</span>` : `<span class="chip part">未登録 ${need.length - regN}</span>`;
       const hasTank = g.items.some(i => i.input_type === 'level');
       return `<section class="grp ${open ? 'open' : 'closed'} ${bad ? 'bad' : ''}" id="g-${gi}"><div class="grp-h">
           <button class="grp-t" data-act="gtoggle" data-g="${gi}" aria-expanded="${open}"><span class="gc" aria-hidden="true">›</span><b>${esc(g.name)}</b><span class="gs">${st}${st2}</span></button>
@@ -801,9 +836,7 @@ function renderEntry() {
         : '<p class="muted" style="font-size:13px;margin:0">見た目に異常があれば撮影してください。✗ を付けた項目には撮影ボタンが出ます。</p>'}
     </section>
     <div class="notebox"><textarea id="f-note" rows="2" placeholder="備考（任意）例：窒素ボンベ交換、吸引装置フィルター交換">${esc(S.note)}</textarea></div>
-    ${S.active ? keypadSheet() : `<div class="savebar">${unsaved
-      ? `<button data-act="save">✓の項目もまとめて保存（未保存 ${unsaved}・入力 ${n}/${daily.length}）</button>`
-      : `<button class="done" data-act="leave">登録済み　一覧へ戻る（${n}/${daily.length}）</button>`}</div>`}`;
+    ${S.active ? keypadSheet() : `<div class="savebar"><button class="done" data-act="leave">一覧へ戻る（登録 ${reg}/${daily.length}）</button></div>`}`;
   keepActiveVisible();
   requestAnimationFrame(keepActiveVisible);   // テンキーが出る動きのあとにもう一度合わせる
   if (S.sheetAnimEnd) clearTimeout(S.sheetAnimEnd);
@@ -873,7 +906,7 @@ function groupIndexOf(id) {
 function setActive(id) {
   if (S.active && S.active !== id) commitNum(S.active);
   S.sheetAnim = !S.active && !!id;
-  if (id) { const gi = groupIndexOf(id); if (gi >= 0) S.open.add(gi); }
+  if (id) { const gi = groupIndexOf(id); if (gi >= 0) { S.open.add(gi); S.opened.add(gi); } }
   S.active = id; renderEntry();
 }
 /* =========================================================
@@ -1117,16 +1150,11 @@ document.addEventListener('click', ev => {
   }
 
   else if (act === 'entry') openEntry(b.dataset.loc);
-  else if (act === 'leave') {
-    if (S.active) { commitNum(S.active); S.active = null; }
-    const u = unsavedItems().length + (S.note.trim() !== (S.noteSaved || '').trim() ? 1 : 0);
-    if (u && !confirm(`まだ保存していない項目が ${u} 件あります（最初から ✓ の項目など）。保存せずに一覧へ戻りますか？`)) { renderEntry(); return; }
-    S.view = 'home'; render(); window.scrollTo(0, 0);
-  }
+  else if (act === 'leave' || act === 'save') leaveEntry();
   else if (act === 'bool') {
     if (S.active) { commitNum(S.active); S.active = null; }
     draftOf(b.dataset.id).v = b.dataset.v === '1'; S.dirty = true;
-    if (b.dataset.v === '0' || S.saved[b.dataset.id] !== undefined) autosave([b.dataset.id]);   // ✗ は押した時点で登録（✓ に戻したときも登録し直す）
+    autosave([b.dataset.id]);   // ✓／✗ とも押した時点で登録
     renderEntry();
   }
   else if (act === 'bankStep') {
@@ -1149,14 +1177,18 @@ document.addEventListener('click', ev => {
   else if (act === 'gtoggle') {
     const gi = +b.dataset.g;
     if (S.active) { commitNum(S.active); S.active = null; }
-    if (S.open.has(gi)) S.open.delete(gi); else S.open.add(gi);
+    if (S.open.has(gi)) { S.open.delete(gi); flushGroup(gi); }   // 閉じたら、その区分の ✓ を登録
+    else { S.open.add(gi); S.opened.add(gi); }
     renderEntry();
+    // 開いた・閉じた区分の見出しが画面の上に見えるように位置を合わせる（下の方で閉じても迷子にならない）
     const el = document.getElementById('g-' + gi);
-    if (el && S.open.has(gi)) { const t = el.getBoundingClientRect().top, h = document.querySelector('.top').getBoundingClientRect().bottom; if (t < h + 8) window.scrollBy(0, t - h - 8); }
+    if (el) { const t = el.getBoundingClientRect().top, h = document.querySelector('.top').getBoundingClientRect().bottom; if (t < h + 8) window.scrollBy(0, t - h - 8); }
   }
   else if (act === 'grpok') {
     const g = groupsOf(locItems())[+b.dataset.g];
     g.items.forEach(i => { if (i.input_type === 'bool' && !isDone(i, S.draft[i.item_id])) draftOf(i.item_id).v = true; });
+    S.opened.add(+b.dataset.g);
+    autosave(g.items.filter(i => i.input_type === 'bool').map(i => i.item_id));   // 押した時点で登録
     S.dirty = true; renderEntry();
   }
   else if (act === 'field') setActive(S.active === b.dataset.id ? null : b.dataset.id);
@@ -1200,16 +1232,14 @@ document.addEventListener('click', ev => {
     toast(`${loc} を保存しました`);
   }
 });
-document.addEventListener('input', ev => {
-  if (ev.target.id !== 'f-note') return;
-  S.note = ev.target.value; S.dirty = true;
-  const btn = document.querySelector('.savebar button');
-  if (btn && S.view === 'entry') {
-    const changed = S.note.trim() !== (S.noteSaved || '').trim();
-    const others = unsavedItems().length;
-    if (changed || others) { btn.dataset.act = 'save'; btn.classList.remove('done'); btn.textContent = others ? `✓の項目もまとめて保存（未保存 ${others + (changed ? 1 : 0)}）` : '備考を保存'; }
-    else { btn.dataset.act = 'leave'; btn.classList.add('done'); btn.textContent = '登録済み　一覧へ戻る'; }
-  }
+document.addEventListener('input', ev => { if (ev.target.id === 'f-note') { S.note = ev.target.value; S.dirty = true; } });
+/* 備考は書き終えて欄から離れたときに登録 */
+document.addEventListener('change', ev => {
+  if (ev.target.id === 'f-note' && S.view === 'entry' && saveNoteIfChanged()) toast('備考を登録しました');
+});
+/* アプリを閉じる・切り替えるときも、開いた区分の ✓ と備考を登録しておく */
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden' && S.view === 'entry') { if (S.active) commitNum(S.active); flushOpened(); saveNoteIfChanged(); }
 });
 
 document.addEventListener('visibilitychange', () => {
