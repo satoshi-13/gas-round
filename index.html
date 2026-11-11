@@ -90,6 +90,14 @@ h2{font-size:14px;margin:16px 2px 6px;color:var(--muted);font-weight:600}
 .orow .days{font-size:22px;font-weight:800;text-align:right;min-width:74px}
 .orow .days small{font-size:12px;font-weight:600;margin-left:2px}
 .orow .when{font-size:12px;color:var(--muted);text-align:right;min-width:64px}
+.orow.two{grid-template-columns:1fr auto auto}
+.dd{display:flex;flex-direction:column;align-items:flex-end;min-width:78px;padding:2px 6px;border-radius:10px}
+.dd small{font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap}
+.dd b{font-size:21px;font-weight:800;line-height:1.15}
+.dd b i{font-style:normal;font-size:12px;margin-left:2px}
+.dd em{font-style:normal;font-size:11px;color:var(--muted);white-space:nowrap}
+.dd.use{background:var(--accent-soft)}
+.dd.ok b{color:var(--ok)} .dd.warn b{color:var(--warn)} .dd.alert b{color:var(--alert)}
 .orow.warn .days{color:var(--warn)} .orow.alert .days{color:var(--alert)} .orow.ok .days{color:var(--ok)}
 .orow.warn{background:linear-gradient(90deg,var(--warn-bg),transparent 70%)}
 .orow.alert{background:linear-gradient(90deg,var(--alert-bg),transparent 70%)}
@@ -562,7 +570,11 @@ function renderHome() {
     ${!S.data ? `<p class="muted">${S.loading ? '読み込んでいます…' : '表示できるデータがありません'}</p>` : `
     ${oxy.length ? `<div class="oxy">
       <div class="oxy-h"><b>酸素　あと何日使えるか</b><button data-act="trend">推移 ›</button></div>
-      ${oxy.map(s => `<div class="orow ${s.level}">
+      ${oxy.map(s => s.use_side ? `<div class="orow two ${s.level}">
+        <span class="n">${esc(s.short)}<small class="num">${s.current}${s.full ? ' / ' + s.full : ''}${esc(s.unit)}${s.avg !== null ? `・1日 ${s.avg}${esc(s.unit)}` : ''}</small>${s.detail ? `<small class="num">${esc(s.detail)}</small>` : ''}</span>
+        <span class="dd use ${s.use_side.level} num"><small>使用中（${esc(s.use_side.side)}）</small><b>${s.use_side.days_left === null ? '—' : s.use_side.days_left >= 100 ? '100+' : s.use_side.days_left}<i>日</i></b><em>${s.use_side.predicted ? md(s.use_side.predicted) + ' 頃' : 'データ不足'}</em></span>
+        <span class="dd ${s.level} num"><small>設備全体</small><b>${dayLeftText(s)}<i>日</i></b><em>${s.predicted ? md(s.predicted) + ' 頃' : 'データ不足'}</em></span></div>`
+      : `<div class="orow ${s.level}">
         <span class="n">${esc(s.short)}<small class="num">${esc(s.side ? s.side + ' ' : '')}${s.current}${s.full ? ' / ' + s.full : ''}${esc(s.unit)}${s.avg !== null ? `・1日 ${s.avg}${esc(s.unit)}` : ''}</small>${s.detail ? `<small class="num">${esc(s.detail)}</small>` : ''}</span>
         <span class="days num">${dayLeftText(s)}<small>日</small></span>
         <span class="when num">${s.predicted ? md(s.predicted) + ' 頃' : 'データ不足'}</span></div>`).join('')}
@@ -659,14 +671,20 @@ function splitByNo(items) {
 function locItems() {
   const raw = S.data.items.filter(i => i.location === S.loc);
   const out = [];
-  groupsOf(raw).forEach(g => { const sec = splitByNo(g.items); (sec ? sec.flatMap(x => x.items) : g.items).forEach(i => out.push(i)); });
+  entryGroups(raw).forEach(g => { const sec = splitByNo(g.items); (sec ? sec.flatMap(x => x.items) : g.items).forEach(i => out.push(i)); });
   return out;   // 画面の並び＝テンキーの「次へ」の順
 }
-function groupsOf(items) {
+function groupsOf(items, mergeLock) {
   const out = [];
-  items.forEach(i => { const g = out[out.length - 1]; if (g && g.name === i.group) g.items.push(i); else out.push({ name: i.group, items: [i] }); });
+  items.forEach(i => {
+    const g = out[out.length - 1];
+    // 点検画面では「施錠」だけの区分を作らず、ひとつ上の区分の最後に付ける（開かなくても区分と一緒に ✓ が登録される）
+    if (mergeLock && i.group === '施錠' && g && g.name !== '施錠') { g.items.push(i); return; }
+    if (g && g.name === i.group) g.items.push(i); else out.push({ name: i.group, items: [i] });
+  });
   return out;
 }
+const entryGroups = items => groupsOf(items, true);
 function openEntry(loc) {
   S.loc = loc; S.note = ''; S.active = null; S.dirty = false; S.draft = {}; S.saved = {}; S.open = new Set(); S.opened = new Set();
   locItems().forEach(i => {
@@ -748,7 +766,7 @@ function autosave(ids) {
  *    （開いていない区分は点検していないので登録しない）
  *  ・備考：書き終えて欄から離れたとき（または一覧へ戻ったとき）に登録 */
 function flushGroup(gi) {
-  const g = groupsOf(locItems())[gi]; if (!g) return;
+  const g = entryGroups(locItems())[gi]; if (!g) return;
   autosave(g.items.map(i => i.item_id));
 }
 function flushOpened() { [...(S.opened || [])].forEach(flushGroup); }
@@ -801,7 +819,7 @@ function renderEntry() {
   app.innerHTML = `
     <div class="entry-head"><button class="back" data-act="leave">‹ 一覧</button><h2>${esc(S.loc)}</h2></div>
     <p class="sub-head">${fmtJP(S.date)}　${esc(S.user)}　<span class="ghost">入力するとすぐ登録。最初から付いている ✓ は、区分を閉じたとき（一覧へ戻ったとき）に登録</span></p>
-    ${groupsOf(its).map((g, gi) => {
+    ${entryGroups(its).map((g, gi) => {
       const unsetBool = g.items.filter(i => i.input_type === 'bool' && !isDone(i, S.draft[i.item_id])).length;
       const banks = ((S.data && S.data.banks) || []).map((bk, k) => Object.assign({ k }, bk)).filter(bk => bk.location === S.loc && bk.group === g.name);
       const open = S.open.has(gi);
@@ -900,7 +918,7 @@ function keypadSheet() {
   </div></div>`;
 }
 function groupIndexOf(id) {
-  const gs = groupsOf(locItems());
+  const gs = entryGroups(locItems());
   return gs.findIndex(g => g.items.some(i => i.item_id === id));
 }
 function setActive(id) {
@@ -942,12 +960,13 @@ function renderTrend() {
       <div class="stats num">
         <div>現在値<b>${s.current === null ? '—' : (s.side ? esc(s.side) + ' ' : '') + s.current}<small style="font-size:12px"> ${esc(s.unit)}</small></b></div>
         <div>1日の使用量<b>${s.avg === null ? '—' : s.avg}</b></div>
-        <div class="${s.level}">残り日数<b>${dayLeftText(s)}${s.days_left !== null ? '日' : ''}</b></div>
+        <div class="${s.level}">${s.use_side ? '設備全体の残り' : '残り日数'}<b>${dayLeftText(s)}${s.days_left !== null ? '日' : ''}</b></div>
       </div>
+      ${s.use_side ? `<p class="num" style="font-size:13px;margin:0 0 6px"><b>使用中（${esc(s.use_side.side)}）</b>：残り ${s.use_side.current}${esc(s.unit)}・あと <b class="${s.use_side.level}">${s.use_side.days_left === null ? '—' : s.use_side.days_left + '日'}</b>${s.use_side.predicted ? `（${fmtJP(s.use_side.predicted)}頃に空）` : ''}</p>` : ''}
       ${s.detail ? `<p class="muted num" style="font-size:12.5px;margin:0 0 4px">${s.tank ? '各タンクの目盛' : '左右の残量'}：${esc(s.detail)}${s.bank && !s.capacity_set ? '　※容量が未登録のため「本分」（満タン1本＝1）で表示' : ''}</p>` : ''}
       <p class="muted" style="font-size:12.5px;margin:0 0 6px">${s.predicted ? `下限 ${s.limit}${esc(s.unit)} に届く見込み：${fmtJP(s.predicted)}` : '2日分以上の記録がたまると予測を表示します'}${s.usage.some(u => u.event) ? '　黄色の点＝交換・補充' : ''}</p>
       ${lineChart(s)}</div>`).join('') || '<p class="muted">対象の設備がありません</p>'}
-    <p class="muted" style="font-size:12px">残り日数＝（現在値 − 下限）÷ 直近14日の1日平均使用量。交換・補充した日は平均から除いています。下限はスプレッドシートの「マスタ」の limit で変更できます。ボンベ・液化酸素タンクは左右（予備側を含む）すべての残量の合計で計算します。本数・容量・下限は「ボンベ・タンク設定」シートで変更できます（本数は点検画面でも変更できます）。</p>`;
+    <p class="muted" style="font-size:12px">残り日数＝（現在値 − 下限）÷ 直近14日の1日平均使用量。交換・補充した日は平均から除いています。下限はスプレッドシートの「マスタ」の limit で変更できます。ボンベ・液化酸素タンクの「設備全体」は左右（予備側を含む）すべての残量の合計で、「使用中」は使用中の側の残量 ÷ 1日の使用量（空になるまで）で計算します。本数・容量・下限は「ボンベ・タンク設定」シートで変更できます（本数は点検画面でも変更できます）。</p>`;
 }
 
 function lineChart(s) {
@@ -1185,7 +1204,7 @@ document.addEventListener('click', ev => {
     if (el) { const t = el.getBoundingClientRect().top, h = document.querySelector('.top').getBoundingClientRect().bottom; if (t < h + 8) window.scrollBy(0, t - h - 8); }
   }
   else if (act === 'grpok') {
-    const g = groupsOf(locItems())[+b.dataset.g];
+    const g = entryGroups(locItems())[+b.dataset.g];
     g.items.forEach(i => { if (i.input_type === 'bool' && !isDone(i, S.draft[i.item_id])) draftOf(i.item_id).v = true; });
     S.opened.add(+b.dataset.g);
     autosave(g.items.filter(i => i.input_type === 'bool').map(i => i.item_id));   // 押した時点で登録
