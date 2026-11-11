@@ -550,6 +550,8 @@ function locations() {
   (S.data ? S.data.items : []).forEach(i => { if (!out.includes(i.location)) out.push(i.location); });
   return out;
 }
+/* 液化酸素（kg）は気体の量（L）も出す：1kg ≒ 738L（15℃） */
+const litersText = s => s.l_per_unit && s.current !== null ? `≒ ${Math.round(s.current * s.l_per_unit).toLocaleString('ja-JP')}L` : '';
 const dayLeftText = s => s.days_left === null ? '—' : (s.days_left >= 100 ? '100+' : String(Math.round(s.days_left * 10) / 10));
 
 function renderHome() {
@@ -575,7 +577,7 @@ function renderHome() {
         <span class="dd use ${s.use_side.level} num"><small>使用中（${esc(s.use_side.side)}）</small><b>${s.use_side.days_left === null ? '—' : s.use_side.days_left >= 100 ? '100+' : s.use_side.days_left}<i>日</i></b><em>${s.use_side.predicted ? md(s.use_side.predicted) + ' 頃' : 'データ不足'}</em></span>
         <span class="dd ${s.level} num"><small>設備全体</small><b>${dayLeftText(s)}<i>日</i></b><em>${s.predicted ? md(s.predicted) + ' 頃' : 'データ不足'}</em></span></div>`
       : `<div class="orow ${s.level}">
-        <span class="n">${esc(s.short)}<small class="num">${esc(s.side ? s.side + ' ' : '')}${s.current}${s.full ? ' / ' + s.full : ''}${esc(s.unit)}${s.avg !== null ? `・1日 ${s.avg}${esc(s.unit)}` : ''}</small>${s.detail ? `<small class="num">${esc(s.detail)}</small>` : ''}</span>
+        <span class="n">${esc(s.short)}<small class="num">${esc(s.side ? s.side + ' ' : '')}${s.current}${s.full ? ' / ' + s.full : ''}${esc(s.unit)}${s.avg !== null ? `・1日 ${s.avg}${esc(s.unit)}` : ''}</small>${litersText(s) ? `<small class="num">${litersText(s)}${s.avg !== null ? `・1日 ≒ ${Math.round(s.avg * s.l_per_unit).toLocaleString('ja-JP')}L` : ''}</small>` : ''}${s.detail ? `<small class="num">${esc(s.detail)}</small>` : ''}</span>
         <span class="days num">${dayLeftText(s)}<small>日</small></span>
         <span class="when num">${s.predicted ? md(s.predicted) + ' 頃' : 'データ不足'}</span></div>`).join('')}
     </div>` : ''}
@@ -958,7 +960,7 @@ function renderTrend() {
     ${list.map(s => `<div class="card">
       <h3>${esc(s.label)}</h3>
       <div class="stats num">
-        <div>現在値<b>${s.current === null ? '—' : (s.side ? esc(s.side) + ' ' : '') + s.current}<small style="font-size:12px"> ${esc(s.unit)}</small></b></div>
+        <div>現在値<b>${s.current === null ? '—' : (s.side ? esc(s.side) + ' ' : '') + s.current}<small style="font-size:12px"> ${esc(s.unit)}</small></b>${litersText(s) ? `<small class="num">${litersText(s)}</small>` : ''}</div>
         <div>1日の使用量<b>${s.avg === null ? '—' : s.avg}</b></div>
         <div class="${s.level}">${s.use_side ? '設備全体の残り' : '残り日数'}<b>${dayLeftText(s)}${s.days_left !== null ? '日' : ''}</b></div>
       </div>
